@@ -9,6 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 
 import javax.persistence.*;
+import java.util.Map;
 import java.util.Set;
 
 @Entity
@@ -23,8 +24,12 @@ public class Cart {
     @GeneratedValue(generator = "card_generator_id")
     private String id;
 
-    @OneToMany
-    private Set<Product> products;
+    @ElementCollection
+    @CollectionTable(name = "carts_products",
+            joinColumns = @JoinColumn(name = "cart_id", referencedColumnName = "id"))
+    @MapKeyJoinColumn(name = "product_id")
+    @Column(name = "amount")
+    private Map<Product, Integer> products;
 
     @ManyToOne
     @JoinColumn(name="userId", nullable=false, referencedColumnName="id")

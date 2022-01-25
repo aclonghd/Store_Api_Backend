@@ -1,6 +1,8 @@
 package com.java.store.controller;
 
 import static org.springframework.http.HttpStatus.*;
+
+import com.java.store.dto.ResponseDto;
 import com.java.store.dto.UserDto;
 import com.java.store.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,38 +21,45 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping(path = "api/register")
-    public ResponseEntity<String> register(@RequestBody UserDto user){
+    public ResponseEntity<Object> register(@RequestBody UserDto user){
         try {
             userService.register(user);
+            ResponseDto responseDto = new ResponseDto(OK.value(), OK.toString());
+            return new ResponseEntity<>(responseDto, OK);
         } catch (Exception ex){
-            return new ResponseEntity<>(ex.getMessage(), OK);
+            ResponseDto responseDto = new ResponseDto(BAD_REQUEST.value(), ex.getMessage());
+            return new ResponseEntity<>(responseDto, BAD_REQUEST);
         }
-        return new ResponseEntity<>("200", OK);
     }
 
     @GetMapping(path = "user-info")
-    public ResponseEntity<UserDto> getUserInformation(@RequestBody String username){
+    public ResponseEntity<Object> getUserInformation(@RequestBody String username){
         try {
             UserDto user = userService.getUserInfoByUsername(username);
-            return new ResponseEntity<>(user, OK);
+            ResponseDto responseDto = new ResponseDto(OK.value(), OK.toString(), user);
+            return new ResponseEntity<>(responseDto, OK);
         } catch (Exception ex) {
-            return new ResponseEntity<>(BAD_REQUEST);
+            ResponseDto responseDto = new ResponseDto(BAD_REQUEST.value(), BAD_REQUEST.toString());
+            return new ResponseEntity<>(responseDto, BAD_REQUEST);
         }
     }
 
     @PostMapping(path = "user-info")
-    public ResponseEntity<UserDto> updateUserInformation(@RequestBody UserDto userDto){
+    public ResponseEntity<Object> updateUserInformation(@RequestBody UserDto userDto){
         try {
             userService.updateUserInformation(userDto);
-            return new ResponseEntity<>(userDto, OK);
+            ResponseDto responseDto = new ResponseDto(OK.value(), OK.toString());
+            return new ResponseEntity<>(responseDto, OK);
         } catch (Exception ex){
-            return new ResponseEntity<>(BAD_REQUEST);
+            ResponseDto responseDto = new ResponseDto(BAD_REQUEST.value(), ex.getMessage());
+            return new ResponseEntity<>(responseDto, BAD_REQUEST);
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUserInfo(){
-        return new ResponseEntity<>(userService.getAllUserInfo(),OK);
+    public ResponseEntity<Object> getAllUserInfo(){
+        ResponseDto responseDto = new ResponseDto(OK.value(), OK.toString(), userService.getAllUserInfo());
+        return new ResponseEntity<>(responseDto, OK);
     }
 }
 

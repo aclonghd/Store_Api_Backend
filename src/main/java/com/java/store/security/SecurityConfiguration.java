@@ -3,6 +3,7 @@ package com.java.store.security;
 import static org.springframework.http.HttpMethod.*;
 import static com.java.store.enums.Role.*;
 
+import com.java.store.JWTConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -23,15 +24,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JWTConfig jwtConfig;
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManagerBean());
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManagerBean(), jwtConfig);
         authenticationFilter.setFilterProcessesUrl("/users/api/login");
 
         http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter(authenticationFilter)
-                .addFilterBefore(new AuthorizationCustomFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new AuthorizationCustomFilter(jwtConfig), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers(GET, "/product/api/**").permitAll()
@@ -43,6 +45,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/cart").hasAuthority(USER.name())
                 .antMatchers("/cart").hasAuthority(ADMIN.name())
                 .antMatchers("/product").hasAuthority(ADMIN.name())
+                .antMatchers("/product/update-product").hasAuthority(ADMIN.name())
+                .antMatchers("/product/delete-product").hasAuthority(ADMIN.name())
                 .anyRequest()
                 .authenticated();
     }
