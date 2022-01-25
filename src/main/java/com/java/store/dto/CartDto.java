@@ -12,6 +12,7 @@ import java.util.Set;
 public class CartDto {
     private Set<ProductDto> products;
     private UserDto user;
+    private Set<String> discountCode;
     private long totalPrice;
 
     public CartDto(Set<ProductDto> products, UserDto userDto){

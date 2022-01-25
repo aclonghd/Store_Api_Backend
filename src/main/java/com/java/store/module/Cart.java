@@ -34,7 +34,10 @@ public class Cart {
     @ManyToOne
     @JoinColumn(name="userId", nullable=false, referencedColumnName="id")
     private Users user;
-
-    private long totalPrice;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(joinColumns = @JoinColumn(name = "cart_id"),
+            inverseJoinColumns = @JoinColumn(name = "discount_id"))
+    private Set<Discount> discountApply;
+    private float totalPrice;
 
 }

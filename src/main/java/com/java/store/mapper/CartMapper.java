@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class CartMapper implements BaseMapper<CartDto, Cart>{
@@ -26,12 +26,12 @@ public class CartMapper implements BaseMapper<CartDto, Cart>{
     @Override
     public Cart DtoToEntity(CartDto cartDto) {
         Cart res = new Cart();
-        AtomicLong totalPrice = new AtomicLong();
+        AtomicReference<Float> totalPrice = new AtomicReference<>((float) 0);
         res.setUser(userMapper.DtoToEntity(cartDto.getUser()));
         Map<Product, Integer> productSet = new HashMap<>();
         cartDto.getProducts().forEach(productDto -> {
             productSet.put(productMapper.DtoToEntity(productDto), productDto.getAmount());
-            totalPrice.addAndGet(productDto.getPrice() * productDto.getAmount());
+            totalPrice.updateAndGet(v -> v + productDto.getPrice() * productDto.getAmount());
         });
         res.setProducts(productSet);
         res.setTotalPrice(totalPrice.get());

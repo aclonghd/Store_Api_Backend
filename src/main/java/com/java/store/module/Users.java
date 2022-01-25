@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -32,6 +33,9 @@ public class Users {
     private String lastName;
     @Column(nullable = false)
     private String role;
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(joinColumns =  @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "discount_id"))
+    private Set<Discount> discounts;
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
         switch (role){

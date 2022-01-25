@@ -63,4 +63,8 @@ public class UserService implements UserDetailsService {
         List<Users> all = userRepo.findAll();
         return all.stream().map(userMapper::EntityToDto).collect(Collectors.toList());
     }
+
+    public List<String> getDiscountCodeByUsername(String username){
+        return userRepo.findDiscountByUsername(username);
+    }
 }
