@@ -16,6 +16,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 @Configuration
 @EnableWebSecurity
@@ -28,16 +30,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManagerBean(), jwtConfig);
-        authenticationFilter.setFilterProcessesUrl("/users/api/login");
-
+        authenticationFilter.setFilterProcessesUrl("/users/api/login"); // path for normal user login
+        authenticationFilter.setFilterProcessesUrl("/users/store-manager/login"); // path for store manager login
         http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter(authenticationFilter)
                 .addFilterBefore(new AuthorizationCustomFilter(jwtConfig), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                .antMatchers("/").permitAll()
+                .antMatchers("/", "/api/drive").permitAll()
                 .antMatchers(GET, "/product/api/**").permitAll()
-                .antMatchers(POST, "/users/api/register", "/users/api/login").permitAll()
+                .antMatchers(POST, "/users/api/register", "/users/api/login", "/users/store-manager/login").permitAll()
                 .antMatchers(GET,"/users/user-info").hasAnyAuthority(USER.name(), ADMIN.name())
                 .antMatchers(POST,"/users/user-info").hasAnyAuthority(USER.name(), ADMIN.name())
                 .antMatchers(GET,"/users/user-discount").hasAnyAuthority(USER.name(), ADMIN.name())
@@ -49,7 +51,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/discount/discount-info").hasAnyAuthority(USER.name(), ADMIN.name())
                 .antMatchers("/discount/**").hasAuthority(ADMIN.name())
                 .anyRequest()
-                .authenticated();
+                .authenticated()
+                .and().headers()
+                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin","*"))
+                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Headers","Authorization"))
+                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS"))
+                .and().cors();
     }
 
     @Override

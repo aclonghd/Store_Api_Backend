@@ -79,5 +79,10 @@ public class UserController {
         ResponseDto responseDto = new ResponseDto(OK.value(), OK.toString(),userService.getDiscountCodeByUsername(username));
         return new ResponseEntity<>(responseDto, OK);
     }
+
+    @GetMapping(path = "admin-authentication")
+    public ResponseEntity<Object> adminAuthentication(Authentication authentication){
+        return new ResponseEntity<>(new ResponseDto(OK.value(), OK.toString()), OK);
+    }
 }
 

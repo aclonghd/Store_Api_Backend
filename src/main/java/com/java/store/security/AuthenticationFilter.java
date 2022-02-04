@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.java.store.JWTConfig;
 import com.java.store.dto.ResponseDto;
+import com.java.store.enums.Role;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,8 +34,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             AuthenticationRequest user = objectMapper.readValue(request.getInputStream(), AuthenticationRequest.class);
-            Authentication authenticationToken = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
-            return authenticationManager.authenticate(authenticationToken);
+            Authentication result = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+            if(request.getServletPath().equals("/users/store-manager/login")){
+                if(result.getAuthorities().size() != 12){
+                    return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), null));
+                }
+            }
+            return result;
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
@@ -64,7 +70,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         ResponseDto responseDto = new ResponseDto();
         responseDto.setCode(HttpStatus.OK.value());
         responseDto.setMessage(HttpStatus.OK.toString());
-        List<Map> res = new ArrayList<>();
+        List<Map<String, String>> res = new ArrayList<>();
         res.add(tokens);
         responseDto.setResult(res);
         ObjectMapper objectMapper = new ObjectMapper();

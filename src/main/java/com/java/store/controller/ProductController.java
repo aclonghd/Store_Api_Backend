@@ -1,13 +1,12 @@
 package com.java.store.controller;
 
+import com.java.store.dto.FileDto;
 import com.java.store.dto.ResponseDto;
 import com.java.store.module.Product;
 import com.java.store.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.http.HttpStatus.*;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +16,7 @@ import java.util.List;
 
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping(path = "product")
 @AllArgsConstructor
 public class ProductController{
@@ -104,5 +104,23 @@ public class ProductController{
             return new ResponseEntity<>(responseDto, BAD_REQUEST);
         }
     }
+    @PostMapping(path = "{product-id}/import-image")
+    public ResponseEntity<Object> importImage(@PathVariable("product-id") Long productId,@RequestBody List<FileDto> fileDtoList){
+        try{
 
+            return new ResponseEntity<>(new ResponseDto(OK.value(), "upload image success", productService.uploadPhotosToProduct(fileDtoList, productId)), OK);
+        } catch (Exception ex){
+            return new ResponseEntity<>(new ResponseDto(BAD_REQUEST.value(), ex.getMessage()), BAD_REQUEST);
+        }
+    }
+    @DeleteMapping(path = "{product-id}/delete-image")
+    public ResponseEntity<Object> deletePhotoFromProduct(@PathVariable("product-id") Long productId, @RequestParam String photoId){
+        try{
+            if(productService.removePhotoFromProduct(photoId, productId))
+                return new ResponseEntity<>(new ResponseDto(OK.value(), "delete success"), OK);
+            return new ResponseEntity<>(new ResponseDto(BAD_REQUEST.value(), "some thing wrong"), OK);
+        } catch (Exception ex){
+            return new ResponseEntity<>(new ResponseDto(BAD_REQUEST.value(), ex.getMessage()), BAD_REQUEST);
+        }
+    }
 }
