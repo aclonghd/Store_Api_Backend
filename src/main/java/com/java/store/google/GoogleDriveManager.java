@@ -4,10 +4,10 @@ import com.google.api.client.http.InputStreamContent;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.Permission;
-import com.java.store.dto.FileDto;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -39,16 +39,16 @@ public class GoogleDriveManager {
         googleDriveConfig.getService().files().create(fileMetadata).setFields("id").execute();
     }
 
-    public String uploadFile(FileDto file, String folderName, String type, String role){
+    public String uploadFile(MultipartFile file, String folderName, String type, String role){
         try {
             String folderId = getFolderId(folderName);
             if (null != file) {
                 File fileMetadata = new File();
                 fileMetadata.setParents(Collections.singletonList(folderId));
-                fileMetadata.setName(file.getFileName());
+                fileMetadata.setName(file.getOriginalFilename());
                 File uploadFile = googleDriveConfig.getService()
                         .files()
-                        .create(fileMetadata, new InputStreamContent(file.getMimeType(), new ByteArrayInputStream(file.getFileData()))
+                        .create(fileMetadata, new InputStreamContent(file.getContentType(), new ByteArrayInputStream(file.getBytes()))
                         )
                         .setFields("id").execute();
 
@@ -67,7 +67,7 @@ public class GoogleDriveManager {
     public List<File> getAllFolder() throws GeneralSecurityException, IOException {
         String query = "mimeType = 'application/vnd.google-apps.folder' and '"
                 + googleDriveConfig.getParentFolderIdOfSharedByNormalAccount() + "' in parents";
-        List<File> res = new ArrayList<>();
+        List<File> res;
         String pageToken = null;
         do{
             FileList fileList = googleDriveConfig.getService().files().list()

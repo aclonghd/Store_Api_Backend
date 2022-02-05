@@ -1,7 +1,6 @@
 package com.java.store.service;
 
 import com.google.api.services.drive.model.File;
-import com.java.store.dto.FileDto;
 import com.java.store.google.GoogleDriveManager;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ public class GDriveCloudService {
         googleDriveManager.createNewFolder(folderName);
     }
 
-    public String uploadFile(FileDto file, String folderName) {
+    public String uploadFile(MultipartFile file, String folderName) {
         return googleDriveManager.uploadFile(file, folderName, "anyone", "reader");
     }
     public boolean isExistFolder(String folderName) throws GeneralSecurityException, IOException {
@@ -34,6 +33,15 @@ public class GDriveCloudService {
     public boolean deleteFile(String fileId){
         try {
             googleDriveManager.deleteFile(fileId);
+            return true;
+        } catch (Exception ex){
+            return false;
+        }
+    }
+
+    public boolean deleteFolder(String folderName) {
+        try {
+            googleDriveManager.deleteFolder(folderName);
             return true;
         } catch (Exception ex){
             return false;

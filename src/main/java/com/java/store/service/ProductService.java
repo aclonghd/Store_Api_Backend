@@ -1,15 +1,13 @@
 package com.java.store.service;
 
-import com.java.store.dto.FileDto;
+import com.java.store.dto.NewProductDto;
 import com.java.store.module.Product;
 import com.java.store.repository.ProductRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -24,8 +22,20 @@ public class ProductService {
         throw new Exception("Bad Request");
     }
 
-    public void addProduct(Product product){
+    public Long addProduct(NewProductDto newProduct) throws Exception {
+        long id = (long) productRepo.findAll().size() + 1;
+        Product product = new Product();
+        product.setId(id);
+        product.setTitle(newProduct.getTitle());
+        product.setPrice(newProduct.getPrice());
+        product.setColor(newProduct.getColor());
+        product.setInformation(newProduct.getInformation());
+        product.setQuantity(newProduct.getQuantity());
+        product.setImageUrl(new HashSet<>());
         productRepo.save(product);
+        if(newProduct.getFiles() != null)
+            uploadPhotosToProduct(new ArrayList<>(newProduct.getFiles()), id);
+        return id;
     }
 
     public List<Product> getAllProduct(){
@@ -39,20 +49,24 @@ public class ProductService {
         productRepo.save(product);
     }
 
-    public void deleteProduct(Collection<Long> listProductId) throws Exception{
-        if(productRepo.findAllById(listProductId).size() != listProductId.size()){
+    public void deleteProduct(Long productId) throws Exception{
+        if(productRepo.findById(productId).isEmpty()){
             throw new Exception("Bad Request");
         }
-        productRepo.deleteAllById(listProductId);
+        Product product = productRepo.getById(productId);
+        if(product.getImageUrl().size() > 0){
+            if(!gDriveCloudService.deleteFolder(String.valueOf(productId))) throw new Exception("FolderNotFound");
+        }
+        productRepo.deleteById(productId);
     }
 
-    public Set<String> uploadPhotosToProduct(List<FileDto> fileDtoList, Long productId) throws Exception {
+    public Set<String> uploadPhotosToProduct(List<MultipartFile> fileDtoList, Long productId) throws Exception {
         String[] mimeTypeValid = {"image/gif", "image/jpg" ,"image/jpeg", "image/png", "image/tiff"};
         if(!productRepo.existsById(productId)) throw new Exception("Product id is invalid");
         if(!gDriveCloudService.isExistFolder(productId.toString())) gDriveCloudService.createNewFolder(productId.toString());
         Product product = productRepo.getById(productId);
-        for(FileDto fileDto : fileDtoList){
-            if(Arrays.stream(mimeTypeValid).noneMatch(fileDto.getMimeType()::equalsIgnoreCase)) throw new Exception("File type is invalid");
+        for(MultipartFile fileDto : fileDtoList){
+            if(Arrays.stream(mimeTypeValid).noneMatch(Objects.requireNonNull(fileDto.getContentType())::equalsIgnoreCase)) throw new Exception("File type is invalid");
             String photoId = gDriveCloudService.uploadFile(fileDto, productId.toString());
             String urlImage = String.format("https://drive.google.com/uc?export=view&id=%s", photoId);
             product.getImageUrl().add(urlImage);
@@ -66,6 +80,7 @@ public class ProductService {
         Product product = productRepo.getById(productId);
         if(gDriveCloudService.deleteFile(photoId)){
             product.getImageUrl().remove(String.format("https://drive.google.com/uc?export=view&id=%s", photoId));
+            productRepo.save(product);
             return true;
         }
         return false;
