@@ -29,4 +29,12 @@ public class Product {
         joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"), foreignKey = @ForeignKey(foreignKeyDefinition = "foreign key (product_id) references products (id) on delete cascade")
     )
     private Set<String> imageUrl;
+    private String mainImage;
+    private float averageRatting;
+    private int voteNumber;
+
+    @ElementCollection
+    @CollectionTable(joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"), foreignKey = @ForeignKey(foreignKeyDefinition = "foreign key (product_id) references products (id) on delete cascade"))
+    private Set<String> tags;
+
 }

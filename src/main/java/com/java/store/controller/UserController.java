@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @CrossOrigin("*")
 @RequestMapping(path = "users")
@@ -33,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping(path = "user-info")
-    public ResponseEntity<Object> getUserInformation(@RequestBody String username, Authentication authentication){
+    public ResponseEntity<Object> getUserInformation(@RequestParam String username, Authentication authentication){
         try {
             if(!authentication.getPrincipal().equals(username)) {
                 if(!authentication.getAuthorities().toArray()[0].toString().equals(Role.ADMIN.name()))
@@ -83,6 +85,14 @@ public class UserController {
     @GetMapping(path = "admin-authentication")
     public ResponseEntity<Object> adminAuthentication(Authentication authentication){
         return new ResponseEntity<>(new ResponseDto(OK.value(), OK.toString()), OK);
+    }
+
+    @PostMapping(path = "change-password")
+    public ResponseEntity<Object> changePassword(@RequestBody Map<String, String> map, Authentication authentication){
+        String username = authentication.getPrincipal().toString();
+        if(userService.changePassword(map.get("oldPassword"), map.get("newPassword"), username))
+            return new ResponseEntity<>(new ResponseDto(OK.value(), OK.toString()), OK);
+        return new ResponseEntity<>(new ResponseDto(NO_CONTENT.value(), NO_CONTENT.toString()), OK);
     }
 }
 

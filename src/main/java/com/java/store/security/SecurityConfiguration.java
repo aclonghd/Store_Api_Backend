@@ -50,6 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/product/**").hasAuthority(ADMIN.name())
                 .antMatchers("/discount/discount-info").hasAnyAuthority(USER.name(), ADMIN.name())
                 .antMatchers("/discount/**").hasAuthority(ADMIN.name())
+                .antMatchers("/review/**").hasAuthority(ADMIN.name())
                 .anyRequest()
                 .authenticated()
                 .and().headers()

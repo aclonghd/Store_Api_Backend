@@ -1,6 +1,8 @@
 package com.java.store.service;
 
 import com.java.store.dto.NewProductDto;
+import com.java.store.dto.ProductInfoDto;
+import com.java.store.mapper.ProductMapper;
 import com.java.store.module.Product;
 import com.java.store.repository.ProductRepo;
 import lombok.AllArgsConstructor;
@@ -13,6 +15,7 @@ import java.util.*;
 @AllArgsConstructor
 public class ProductService {
     private final ProductRepo productRepo;
+    private final ProductMapper productMapper;
     private final GDriveCloudService gDriveCloudService;
 
     public Product getProduct(Long productId) throws Exception{
@@ -23,23 +26,30 @@ public class ProductService {
     }
 
     public Long addProduct(NewProductDto newProduct) throws Exception {
-        long id = (long) productRepo.findAll().size() + 1;
         Product product = new Product();
-        product.setId(id);
         product.setTitle(newProduct.getTitle());
         product.setPrice(newProduct.getPrice());
         product.setColor(newProduct.getColor());
         product.setInformation(newProduct.getInformation());
         product.setQuantity(newProduct.getQuantity());
         product.setImageUrl(new HashSet<>());
+        product.setVoteNumber(0);
+        product.setAverageRatting(0);
         productRepo.save(product);
+        productRepo.flush();
         if(newProduct.getFiles() != null)
-            uploadPhotosToProduct(new ArrayList<>(newProduct.getFiles()), id);
-        return id;
+            uploadPhotosToProduct(new ArrayList<>(newProduct.getFiles()), product.getId());
+        return product.getId();
     }
 
-    public List<Product> getAllProduct(){
-        return productRepo.findAll();
+    public List<ProductInfoDto> getAllProduct(){
+        List<ProductInfoDto> res = new ArrayList<>();
+        List<Product> productList = productRepo.findAll();
+        for(Product product : productList){
+            ProductInfoDto productInfoDto = productMapper.EntityToInfoDto(product);
+            res.add(productInfoDto);
+        }
+        return res;
     }
 
     public void updateProduct(Product product) throws Exception{
@@ -71,6 +81,8 @@ public class ProductService {
             String urlImage = String.format("https://drive.google.com/uc?export=view&id=%s", photoId);
             product.getImageUrl().add(urlImage);
         }
+        if(product.getImageUrl().stream().findFirst().isPresent())
+            product.setMainImage(product.getImageUrl().stream().findFirst().get());
         productRepo.save(product);
         return product.getImageUrl();
     }

@@ -54,9 +54,22 @@ public class UserService implements UserDetailsService {
     public void updateUserInformation(UserDto userDto) throws Exception{
         Users userOrigin = userRepo.findByUsername(userDto.getUsername());
         if(userOrigin == null) throw new Exception("Bad Request");
-        Users res = userMapper.DtoToEntity(userDto);
-        res.setPassword(userOrigin.getPassword());
-        userRepo.save(res);
+        userOrigin.setFirstName(userDto.getFirstName());
+        userOrigin.setLastName(userDto.getLastName());
+        userOrigin.setAddress(userDto.getAddress());
+        userOrigin.setAge(userDto.getAge());
+        userOrigin.setEmail(userDto.getEmail());
+        userRepo.save(userOrigin);
+    }
+
+    public boolean changePassword(String oldPassword, String newPassword, String username){
+        Users user = userRepo.findByUsername(username);
+        if(passwordEncoder.matches(oldPassword, user.getPassword())){
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepo.save(user);
+            return true;
+        }
+        return false;
     }
 
     public List<UserDto> getAllUserInfo(){

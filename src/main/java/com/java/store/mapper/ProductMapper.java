@@ -1,6 +1,7 @@
 package com.java.store.mapper;
 
 import com.java.store.dto.ProductDto;
+import com.java.store.dto.ProductInfoDto;
 import com.java.store.module.Product;
 import com.java.store.repository.ProductRepo;
 import lombok.AllArgsConstructor;
@@ -24,5 +25,19 @@ public class ProductMapper implements BaseMapper<ProductDto, Product>{
         productDto.setTitle(product.getTitle());
         productDto.setInformation(product.getInformation());
         return productDto;
+    }
+
+    public ProductInfoDto EntityToInfoDto(Product product){
+        ProductInfoDto productInfoDto = new ProductInfoDto();
+        productInfoDto.setPrice(product.getPrice());
+        productInfoDto.setColor(product.getColor());
+        productInfoDto.setId(product.getId());
+        productInfoDto.setQuantity(product.getQuantity());
+        productInfoDto.setAverageRatting(product.getAverageRatting());
+        productInfoDto.setTitle(product.getTitle());
+        productInfoDto.setMainImage(product.getMainImage());
+        productInfoDto.setVoteNumber(product.getVoteNumber());
+        productInfoDto.setTags(product.getTags());
+        return productInfoDto;
     }
 }
