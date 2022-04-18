@@ -11,5 +11,6 @@ public interface ReviewRepo extends JpaRepository<Review, Long> {
     @Query(value = "select coalesce(avg(review_score), 0) from reviews r where r.product_id = :product_id", nativeQuery = true)
     float getProductAverageScore(@Param("product_id") Long productId);
 
-    List<Review> findAllByParentId(Long parentId);
+    @Query(value = "select * from reviews r where r.parent_id = :parent_id", nativeQuery = true)
+    List<Review> findAllByParentId(@Param("parent_id") Long parentId);
 }

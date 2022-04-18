@@ -32,7 +32,7 @@ public class ReviewService {
         List<ReviewDto> res = new ArrayList<>();
         List<Review> reviews = reviewRepo.findAll();
         for(Review review: reviews){
-            if(review.getParentId() == null) {
+            if(review.getReviewParent() == null) {
                 ReviewDto reviewDto = reviewMapper.EntityToDto(review);
                 res.add(reviewDto);
             }
@@ -70,12 +70,13 @@ public class ReviewService {
         }
         else user = userRepo.findByUsername(review.getUser().getUsername());
         review.setParentId(null);
-        reviewRepo.save(reviewMapper.NewDtoToEntity(review, user, product));
+        reviewRepo.save(reviewMapper.NewDtoToEntity(review, user, product, null));
     }
 
     public void addReply(NewReviewDto review) throws Exception{
         if(!productRepo.existsById(review.getProductId())) throw new Exception("Product does not exist");
         if(!reviewRepo.existsById(review.getParentId())) throw new Exception("parent for this reply not found");
+        Review reviewParent = reviewRepo.getById(review.getParentId());
         Product product = productRepo.getById(review.getProductId());
         Users user;
         if(review.getUser().getUsername() == null || userRepo.findByUsername(review.getUser().getUsername()) == null){
@@ -92,6 +93,6 @@ public class ReviewService {
             userRepo.flush();
         }
         else user = userRepo.findByUsername(review.getUser().getUsername());
-        reviewRepo.save(reviewMapper.NewDtoToEntity(review, user, product));
+        reviewRepo.save(reviewMapper.NewDtoToEntity(review, user, product, reviewParent));
     }
 }

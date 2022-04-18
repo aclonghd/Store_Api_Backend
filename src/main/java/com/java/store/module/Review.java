@@ -1,6 +1,8 @@
 package com.java.store.module;
 
 import lombok.Data;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -14,9 +16,13 @@ public class Review {
 
     @OneToOne
     private Users user;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Product product;
     private float reviewScore;
     private String review;
-    private Long parentId;
+    @ManyToOne
+    @JoinColumn(name = "parentId", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Review reviewParent;
 }

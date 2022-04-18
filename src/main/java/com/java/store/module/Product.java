@@ -33,8 +33,8 @@ public class Product {
     private float averageRatting;
     private int voteNumber;
 
-    @ElementCollection
-    @CollectionTable(joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"), foreignKey = @ForeignKey(foreignKeyDefinition = "foreign key (product_id) references products (id) on delete cascade"))
-    private Set<String> tags;
+    @ManyToMany
+    @JoinTable(joinColumns =  @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private Set<Tags> tags;
 
 }

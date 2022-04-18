@@ -30,13 +30,13 @@ public class ReviewMapper implements BaseMapper<ReviewDto, Review> {
         return res;
     }
 
-    public Review NewDtoToEntity(NewReviewDto reviewDto, Users user, Product product){
+    public Review NewDtoToEntity(NewReviewDto reviewDto, Users user, Product product, Review reviewParent){
         Review res = new Review();
         res.setReview(reviewDto.getReview());
         res.setReviewScore(reviewDto.getReviewScore());
         res.setUser(user);
         res.setProduct(product);
-        res.setParentId(reviewDto.getParentId());
+        res.setReviewParent(reviewParent);
         return res;
     }
 }

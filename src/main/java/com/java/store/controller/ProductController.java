@@ -1,7 +1,7 @@
 package com.java.store.controller;
 
+import com.java.store.dto.ProductDto;
 import com.java.store.dto.ResponseDto;
-import com.java.store.dto.NewProductDto;
 import com.java.store.module.Product;
 import com.java.store.service.ProductService;
 import lombok.AllArgsConstructor;
@@ -28,7 +28,7 @@ public class ProductController{
         ResponseDto responseDto = new ResponseDto();
         try
         {
-            List<Product> res = new ArrayList<>();
+            List<ProductDto> res = new ArrayList<>();
             res.add(productService.getProduct(id));
             responseDto.setResult(res);
             responseDto.setCode(OK.value());
@@ -60,7 +60,7 @@ public class ProductController{
     }
 
     @PostMapping(path = "add-product", consumes = {"multipart/form-data"})
-    public ResponseEntity<Object> addProduct(@ModelAttribute NewProductDto product){
+    public ResponseEntity<Object> addProduct(@ModelAttribute ProductDto product){
         ResponseDto responseDto = new ResponseDto();
         try
         {
@@ -73,7 +73,7 @@ public class ProductController{
     }
 
     @PostMapping(path = "update-product")
-    public ResponseEntity<Object> updateProduct(@RequestBody Product product){
+    public ResponseEntity<Object> updateProduct(@RequestBody ProductDto product){
         ResponseDto responseDto = new ResponseDto();
         try {
             productService.updateProduct(product);
@@ -113,9 +113,8 @@ public class ProductController{
     @DeleteMapping(path = "{product-id}/delete-image")
     public ResponseEntity<Object> deletePhotoFromProduct(@PathVariable("product-id") Long productId, @RequestParam String photoId){
         try{
-            if(productService.removePhotoFromProduct(photoId, productId))
-                return new ResponseEntity<>(new ResponseDto(OK.value(), "delete success"), OK);
-            return new ResponseEntity<>(new ResponseDto(BAD_REQUEST.value(), "some thing wrong"), OK);
+            productService.removePhotoFromProduct(photoId, productId);
+            return new ResponseEntity<>(new ResponseDto(OK.value(), "delete success"), OK);
         } catch (Exception ex){
             return new ResponseEntity<>(new ResponseDto(BAD_REQUEST.value(), ex.getMessage()), BAD_REQUEST);
         }

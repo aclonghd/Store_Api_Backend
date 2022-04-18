@@ -1,10 +1,12 @@
 package com.java.store.service;
 
-import com.java.store.dto.NewProductDto;
+import com.java.store.dto.ProductDto;
 import com.java.store.dto.ProductInfoDto;
 import com.java.store.mapper.ProductMapper;
 import com.java.store.module.Product;
+import com.java.store.module.Tags;
 import com.java.store.repository.ProductRepo;
+import com.java.store.repository.TagRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,24 +19,36 @@ public class ProductService {
     private final ProductRepo productRepo;
     private final ProductMapper productMapper;
     private final GDriveCloudService gDriveCloudService;
+    private final TagRepo tagRepo;
 
-    public Product getProduct(Long productId) throws Exception{
+    public ProductDto getProduct(Long productId) throws Exception{
         if(productRepo.existsById(productId)){
-            return productRepo.getById(productId);
+            Product product =  productRepo.getById(productId);
+            return productMapper.EntityToDto(product);
         }
         throw new Exception("Bad Request");
     }
 
-    public Long addProduct(NewProductDto newProduct) throws Exception {
-        Product product = new Product();
-        product.setTitle(newProduct.getTitle());
-        product.setPrice(newProduct.getPrice());
-        product.setColor(newProduct.getColor());
-        product.setInformation(newProduct.getInformation());
-        product.setQuantity(newProduct.getQuantity());
+    public Long addProduct(ProductDto newProduct) throws Exception {
+        Product product = productMapper.DtoToEntity(newProduct);
         product.setImageUrl(new HashSet<>());
         product.setVoteNumber(0);
         product.setAverageRatting(0);
+        Set<Tags> tags = new HashSet<>();
+        newProduct.getTags().forEach(tagTitle ->{
+            Tags tag = new Tags();
+            if(!tagRepo.existsByTitle(tagTitle)){
+
+                tag.setTitle(tagTitle);
+                tagRepo.save(tag);
+                tagRepo.flush();
+
+            } else {
+                tag = tagRepo.getByTitle(tagTitle);
+            }
+            tags.add(tag);
+        });
+        product.setTags(tags);
         productRepo.save(product);
         productRepo.flush();
         if(newProduct.getFiles() != null)
@@ -52,10 +66,28 @@ public class ProductService {
         return res;
     }
 
-    public void updateProduct(Product product) throws Exception{
-        if(!productRepo.existsById(product.getId())){
+    public void updateProduct(ProductDto productDto) throws Exception{
+        if(!productRepo.existsById(productDto.getId())){
             throw new Exception("Bad Request");
         }
+        Product product = productMapper.DtoToEntity(productDto);
+        product.setId(productDto.getId());
+        Set<Tags> tags = new HashSet<>();
+        productDto.getTags().forEach(tagTitle ->{
+            Tags tag = new Tags();
+            if(!tagRepo.existsByTitle(tagTitle)){
+
+                tag.setTitle(tagTitle);
+                tagRepo.save(tag);
+                tagRepo.flush();
+
+            } else {
+                tag = tagRepo.getByTitle(tagTitle);
+            }
+            tags.add(tag);
+        });
+        product.setTags(tags);
+        if(product.getMainImage() == null && !product.getImageUrl().isEmpty()) product.setMainImage(product.getImageUrl().stream().findFirst().get());
         productRepo.save(product);
     }
 
@@ -65,7 +97,7 @@ public class ProductService {
         }
         Product product = productRepo.getById(productId);
         if(product.getImageUrl().size() > 0){
-            if(!gDriveCloudService.deleteFolder(String.valueOf(productId))) throw new Exception("FolderNotFound");
+            gDriveCloudService.deleteFolder(String.valueOf(productId));
         }
         productRepo.deleteById(productId);
     }
@@ -87,14 +119,12 @@ public class ProductService {
         return product.getImageUrl();
     }
 
-    public boolean removePhotoFromProduct(String photoId, Long productId) throws Exception{
+    public void removePhotoFromProduct(String photoId, Long productId) throws Exception{
         if(!productRepo.existsById(productId)) throw new Exception("Product id is invalid");
         Product product = productRepo.getById(productId);
-        if(gDriveCloudService.deleteFile(photoId)){
-            product.getImageUrl().remove(String.format("https://drive.google.com/uc?export=view&id=%s", photoId));
-            productRepo.save(product);
-            return true;
-        }
-        return false;
+        gDriveCloudService.deleteFile(photoId);
+        product.getImageUrl().remove(String.format("https://drive.google.com/uc?export=view&id=%s", photoId));
+        if(product.getMainImage().equals(String.format("https://drive.google.com/uc?export=view&id=%s", photoId))) product.setMainImage(null);
+        productRepo.save(product);
     }
 }

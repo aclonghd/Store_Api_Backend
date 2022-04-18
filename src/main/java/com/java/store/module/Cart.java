@@ -39,5 +39,7 @@ public class Cart {
             inverseJoinColumns = @JoinColumn(name = "discount_id"))
     private Set<Discount> discountApply;
     private float totalPrice;
-
+    private String timestamp;
+    private String paymentMethods;
+    private String appointmentDate;
 }
