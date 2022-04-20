@@ -17,6 +17,7 @@ public class ProductDto {
     private String mainImage;
     private float averageRatting;
     private int voteNumber;
+    private String titleUrl;
     private Set<String> imageUrl;
     private Set<String> tags;
     private Set<MultipartFile> files;

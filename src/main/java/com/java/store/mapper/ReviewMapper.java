@@ -27,6 +27,7 @@ public class ReviewMapper implements BaseMapper<ReviewDto, Review> {
         res.setReview(review.getReview());
         res.setUser(userMapper.EntityToDto(review.getUser()));
         res.setProduct(productMapper.EntityToInfoDto(review.getProduct()));
+        res.setTimeStamp(review.getTimeStamp());
         return res;
     }
 
@@ -37,6 +38,7 @@ public class ReviewMapper implements BaseMapper<ReviewDto, Review> {
         res.setUser(user);
         res.setProduct(product);
         res.setReviewParent(reviewParent);
+        res.setTimeStamp(reviewDto.getTimeStamp());
         return res;
     }
 }

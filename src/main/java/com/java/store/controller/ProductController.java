@@ -42,6 +42,25 @@ public class ProductController{
         }
     }
 
+    @GetMapping(path = "api/product-info-url")
+    public ResponseEntity<Object> getProductByTitleUrl(@RequestParam String titleUrl){
+        ResponseDto responseDto = new ResponseDto();
+        try
+        {
+            List<ProductDto> res = new ArrayList<>();
+            res.add(productService.getProductByTitleUrl(titleUrl));
+            responseDto.setResult(res);
+            responseDto.setCode(OK.value());
+            responseDto.setMessage(OK.toString());
+            return new ResponseEntity<>(responseDto, OK);
+        } catch (Exception ex){
+
+            responseDto.setCode(BAD_REQUEST.value());
+            responseDto.setMessage(ex.getMessage());
+            return new ResponseEntity<>(responseDto, BAD_REQUEST);
+        }
+    }
+
     @GetMapping(path = "api/all-product-info")
     public ResponseEntity<Object> getAllProduct(){
         ResponseDto responseDto = new ResponseDto();

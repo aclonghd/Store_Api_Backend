@@ -5,6 +5,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Data
 @Entity
@@ -21,6 +22,7 @@ public class Review {
     private Product product;
     private float reviewScore;
     private String review;
+    private Timestamp timeStamp;
     @ManyToOne
     @JoinColumn(name = "parentId", referencedColumnName = "id")
     @OnDelete(action = OnDeleteAction.CASCADE)

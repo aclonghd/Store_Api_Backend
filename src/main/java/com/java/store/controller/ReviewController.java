@@ -20,7 +20,16 @@ public class ReviewController {
         return new ResponseEntity<>(new ResponseDto(OK.value(), OK.toString(), reviewService.getAllReview()), OK);
     }
 
-    @PostMapping(path = "add-review")
+    @GetMapping(path ="/api/review-info")
+    public ResponseEntity<Object> getReviewByProductId(@RequestParam Long productId){
+        try {
+            return new ResponseEntity<>(new ResponseDto(OK.value(), OK.toString(), reviewService.getReviewByProductId(productId)), OK);
+        } catch (Exception exception) {
+            return new ResponseEntity<>(new ResponseDto(BAD_REQUEST.value(), exception.getMessage()), BAD_REQUEST);
+        }
+    }
+
+    @PostMapping(path = "/api/add-review")
     public ResponseEntity<Object> addNewReview(@RequestBody NewReviewDto review){
         try {
             reviewService.addReview(review);
@@ -30,7 +39,7 @@ public class ReviewController {
         }
     }
 
-    @PostMapping(path = "add-reply")
+    @PostMapping(path = "/api/add-reply")
     public ResponseEntity<Object> addReply(@RequestBody NewReviewDto reviewDto){
         try {
             reviewService.addReply(reviewDto);

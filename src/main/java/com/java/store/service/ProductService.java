@@ -29,6 +29,13 @@ public class ProductService {
         throw new Exception("Bad Request");
     }
 
+    public ProductDto getProductByTitleUrl(String titleUrl) throws Exception{
+        if(productRepo.existsByTitleUrl(titleUrl)){
+        Product product = productRepo.getByTitleUrl(titleUrl);
+        return productMapper.EntityToDto(product);
+        } throw new Exception("Page not found");
+    }
+
     public Long addProduct(ProductDto newProduct) throws Exception {
         Product product = productMapper.DtoToEntity(newProduct);
         product.setImageUrl(new HashSet<>());
@@ -115,6 +122,9 @@ public class ProductService {
         }
         if(product.getImageUrl().stream().findFirst().isPresent())
             product.setMainImage(product.getImageUrl().stream().findFirst().get());
+        if(product.getMainImage() == null){
+            product.setMainImage(product.getImageUrl().stream().findFirst().get());
+        }
         productRepo.save(product);
         return product.getImageUrl();
     }

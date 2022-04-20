@@ -49,11 +49,37 @@ public class ReviewService {
         return res;
     }
 
+    public List<ReviewDto> getReviewByProductId(Long productId) throws Exception{
+        if(productRepo.existsById(productId)){
+            List<ReviewDto> res = new ArrayList<>();
+            List<Review> reviews = reviewRepo.findAllByProductId(productId);
+            for(Review review: reviews){
+                if(review.getReviewParent() == null) {
+                    ReviewDto reviewDto = reviewMapper.EntityToDto(review);
+                    res.add(reviewDto);
+                }
+            }
+            for(ReviewDto reviewDto: res){
+                List<ReviewDto> replyRes = new ArrayList<>();
+                List<Review> replyList = reviewRepo.findAllByParentId(reviewDto.getId());
+                for (Review reply: replyList) {
+                    ReviewDto replyDto = reviewMapper.EntityToDto(reply);
+                    replyRes.add(replyDto);
+                }
+                reviewDto.setReply(replyRes);
+            }
+            return res;
+        } throw new Exception("Bad request");
+    }
+
     public void addReview(NewReviewDto review) throws Exception{
         if(!productRepo.existsById(review.getProductId())) throw new Exception("Product does not exist");
         Product product = productRepo.getById(review.getProductId());
         product.setVoteNumber(product.getVoteNumber()+1);
-        product.setAverageRatting((reviewRepo.getProductAverageScore(product.getId()) + review.getReviewScore())/ 2);
+        float averageScore = reviewRepo.getProductAverageScore(product.getId());
+        if(averageScore != 0)
+            product.setAverageRatting((averageScore + review.getReviewScore())/ 2);
+        else product.setAverageRatting(review.getReviewScore());
         Users user;
         if(review.getUser().getUsername() == null || userRepo.findByUsername(review.getUser().getUsername()) == null){
             user = new Users();
