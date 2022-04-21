@@ -28,6 +28,9 @@ public class ProductMapper implements BaseMapper<ProductDto, Product>{
         product.setVoteNumber(productDto.getVoteNumber());
         product.setAverageRatting(productDto.getAverageRatting());
         product.setTitleUrl(productDto.getTitleUrl());
+        product.setProductTag(productDto.getProductTag());
+        product.setSpecifications(productDto.getSpecifications());
+        product.setMemory(productDto.getMemory());
         return product;
     }
 
@@ -45,6 +48,9 @@ public class ProductMapper implements BaseMapper<ProductDto, Product>{
         productDto.setAverageRatting(product.getAverageRatting());
         productDto.setMainImage(product.getMainImage());
         productDto.setTitleUrl(product.getTitleUrl());
+        productDto.setProductTag(product.getProductTag());
+        productDto.setSpecifications(product.getSpecifications());
+        productDto.setMemory(product.getMemory());
         Set<String> tags = new HashSet<>();
         product.getTags().forEach(tag ->{
             tags.add(tag.getTitle());
@@ -63,6 +69,7 @@ public class ProductMapper implements BaseMapper<ProductDto, Product>{
         productInfoDto.setTitle(product.getTitle());
         productInfoDto.setMainImage(product.getMainImage());
         productInfoDto.setVoteNumber(product.getVoteNumber());
+        productInfoDto.setMemory(product.getMemory());
         Set<String> tagSet = new HashSet<>();
         product.getTags().forEach(tag -> {
             tagSet.add(tag.getTitle());

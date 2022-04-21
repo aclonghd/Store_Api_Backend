@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -34,6 +35,20 @@ public class ProductService {
         Product product = productRepo.getByTitleUrl(titleUrl);
         return productMapper.EntityToDto(product);
         } throw new Exception("Page not found");
+    }
+
+    public List<String> getAllProductTag(){
+        return productRepo.getAllProductTag();
+    }
+
+    public List<ProductInfoDto> findAllByProductTag(String productTag){
+        List<ProductInfoDto> res = new ArrayList<>();
+        List<Product> productList = productRepo.findAllByProductTag(productTag);
+        for(Product product : productList){
+            ProductInfoDto productInfoDto = productMapper.EntityToInfoDto(product);
+            res.add(productInfoDto);
+        }
+        return res;
     }
 
     public Long addProduct(ProductDto newProduct) throws Exception {
@@ -120,8 +135,6 @@ public class ProductService {
             String urlImage = String.format("https://drive.google.com/uc?export=view&id=%s", photoId);
             product.getImageUrl().add(urlImage);
         }
-        if(product.getImageUrl().stream().findFirst().isPresent())
-            product.setMainImage(product.getImageUrl().stream().findFirst().get());
         if(product.getMainImage() == null){
             product.setMainImage(product.getImageUrl().stream().findFirst().get());
         }
@@ -134,7 +147,12 @@ public class ProductService {
         Product product = productRepo.getById(productId);
         gDriveCloudService.deleteFile(photoId);
         product.getImageUrl().remove(String.format("https://drive.google.com/uc?export=view&id=%s", photoId));
-        if(product.getMainImage().equals(String.format("https://drive.google.com/uc?export=view&id=%s", photoId))) product.setMainImage(null);
+        if(product.getMainImage().equals(String.format("https://drive.google.com/uc?export=view&id=%s", photoId))) {
+            if(product.getImageUrl().stream().findFirst().isPresent())
+                product.setMainImage(product.getImageUrl().stream().findFirst().get());
+            else
+                product.setMainImage(null);
+        }
         productRepo.save(product);
     }
 }

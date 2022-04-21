@@ -78,6 +78,40 @@ public class ProductController{
         }
     }
 
+    @GetMapping(path = "get-all-productTag")
+    public ResponseEntity<Object> getAllProductTag(){
+        ResponseDto responseDto = new ResponseDto();
+        try
+        {
+            responseDto.setCode(OK.value());
+            responseDto.setMessage(OK.toString());
+            responseDto.setResult(productService.getAllProductTag());
+            return new ResponseEntity<>(responseDto, OK);
+        } catch (Exception ex){
+
+            responseDto.setCode(BAD_REQUEST.value());
+            responseDto.setMessage(ex.getMessage());
+            return new ResponseEntity<>(responseDto, BAD_REQUEST);
+        }
+    }
+
+    @GetMapping(path = "api/product")
+    public ResponseEntity<Object> findAllByProductTag(@RequestParam String productTag){
+        ResponseDto responseDto = new ResponseDto();
+        try
+        {
+            responseDto.setCode(OK.value());
+            responseDto.setMessage(OK.toString());
+            responseDto.setResult(productService.findAllByProductTag(productTag));
+            return new ResponseEntity<>(responseDto, OK);
+        } catch (Exception ex){
+
+            responseDto.setCode(BAD_REQUEST.value());
+            responseDto.setMessage(ex.getMessage());
+            return new ResponseEntity<>(responseDto, BAD_REQUEST);
+        }
+    }
+
     @PostMapping(path = "add-product", consumes = {"multipart/form-data"})
     public ResponseEntity<Object> addProduct(@ModelAttribute ProductDto product){
         ResponseDto responseDto = new ResponseDto();

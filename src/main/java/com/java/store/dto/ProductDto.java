@@ -17,6 +17,9 @@ public class ProductDto {
     private String mainImage;
     private float averageRatting;
     private int voteNumber;
+    private String productTag;
+    private String specifications;
+    private int memory;
     private String titleUrl;
     private Set<String> imageUrl;
     private Set<String> tags;

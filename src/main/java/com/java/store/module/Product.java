@@ -33,6 +33,9 @@ public class Product {
     private float averageRatting;
     private int voteNumber;
     private String titleUrl;
+    private int memory;
+    private String specifications;
+    private String productTag;
 
     @ManyToMany
     @JoinTable(joinColumns =  @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
