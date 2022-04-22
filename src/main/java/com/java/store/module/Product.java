@@ -34,6 +34,7 @@ public class Product {
     private int voteNumber;
     private String titleUrl;
     private int memory;
+    @Column(columnDefinition="text")
     private String specifications;
     private String productTag;
 

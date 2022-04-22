@@ -13,6 +13,7 @@ public class ProductInfoDto {
     private String color;
     private int memory;
     private String mainImage;
+    private String titleUrl;
     private float averageRatting;
     private int voteNumber;
     private Set<String> tags;

@@ -52,9 +52,7 @@ public class ProductMapper implements BaseMapper<ProductDto, Product>{
         productDto.setSpecifications(product.getSpecifications());
         productDto.setMemory(product.getMemory());
         Set<String> tags = new HashSet<>();
-        product.getTags().forEach(tag ->{
-            tags.add(tag.getTitle());
-        });
+        product.getTags().forEach(tag -> tags.add(tag.getTitle()));
         productDto.setTags(tags);
         return productDto;
     }
@@ -70,10 +68,9 @@ public class ProductMapper implements BaseMapper<ProductDto, Product>{
         productInfoDto.setMainImage(product.getMainImage());
         productInfoDto.setVoteNumber(product.getVoteNumber());
         productInfoDto.setMemory(product.getMemory());
+        productInfoDto.setTitleUrl(product.getTitleUrl());
         Set<String> tagSet = new HashSet<>();
-        product.getTags().forEach(tag -> {
-            tagSet.add(tag.getTitle());
-        });
+        product.getTags().forEach(tag -> tagSet.add(tag.getTitle()));
         productInfoDto.setTags(tagSet);
         return productInfoDto;
     }
