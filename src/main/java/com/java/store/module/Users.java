@@ -31,6 +31,7 @@ public class Users {
     private String address;
     private String firstName;
     private String lastName;
+    private String phoneNumber;
     @Column(nullable = false)
     private String role;
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

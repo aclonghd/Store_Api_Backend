@@ -14,19 +14,21 @@ public class UserMapper implements BaseMapper<UserDto, Users> {
         res.setFirstName(userDto.getFirstName());
         res.setLastName(userDto.getLastName());
         res.setRole(userDto.getRole());
+        res.setPhoneNumber(userDto.getPhoneNumber());
         return res;
     }
 
     @Override
-    public UserDto EntityToDto(Users users) {
+    public UserDto EntityToDto(Users user) {
         UserDto res = new UserDto();
-        res.setUsername(users.getUsername());
-        res.setAge(users.getAge());
-        res.setEmail(users.getEmail());
-        res.setAddress(users.getAddress());
-        res.setFirstName(users.getFirstName());
-        res.setLastName(users.getLastName());
-        res.setRole(users.getRole());
+        res.setUsername(user.getUsername());
+        res.setAge(user.getAge());
+        res.setEmail(user.getEmail());
+        res.setAddress(user.getAddress());
+        res.setFirstName(user.getFirstName());
+        res.setLastName(user.getLastName());
+        res.setRole(user.getRole());
+        res.setPhoneNumber(user.getPhoneNumber());
         return res;
     }
 }

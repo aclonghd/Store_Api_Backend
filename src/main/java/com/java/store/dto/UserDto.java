@@ -17,6 +17,7 @@ public class UserDto  {
     private String address;
     private String firstName;
     private String lastName;
+    private String phoneNumber;
     private String role;
 
     public String getUsername() {
@@ -52,6 +53,8 @@ public class UserDto  {
         return role;
     }
 
+    public String getPhoneNumber(){ return this.phoneNumber;}
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -84,4 +87,6 @@ public class UserDto  {
     public void setRole(String role) {
         this.role = role;
     }
+
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber;}
 }

@@ -4,6 +4,7 @@ import com.java.store.dto.NewReviewDto;
 import com.java.store.dto.ReviewDto;
 import com.java.store.dto.UserDto;
 import com.java.store.mapper.ReviewMapper;
+import com.java.store.mapper.UserMapper;
 import com.java.store.module.Product;
 import com.java.store.module.Review;
 import com.java.store.module.Users;
@@ -15,9 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -25,6 +24,7 @@ public class ReviewService {
     private final ReviewRepo reviewRepo;
     private final ReviewMapper reviewMapper;
     private final UserRepo userRepo;
+    private final UserMapper userMapper;
     private final ProductRepo productRepo;
     private final PasswordEncoder passwordEncoder;
 
@@ -82,13 +82,9 @@ public class ReviewService {
         else product.setAverageRatting(review.getReviewScore());
         Users user;
         if(review.getUser().getUsername() == null || userRepo.findByUsername(review.getUser().getUsername()) == null){
-            user = new Users();
             UserDto userDto = review.getUser();
+            user = userMapper.DtoToEntity(userDto);
             user.setUsername(passwordEncoder.encode("username"));
-            user.setAddress(userDto.getAddress());
-            user.setEmail(userDto.getEmail());
-            user.setLastName(userDto.getLastName());
-            user.setFirstName(userDto.getFirstName());
             user.setPassword(passwordEncoder.encode("password"));
             user.setRole("USER");
             userRepo.save(user);
@@ -106,13 +102,9 @@ public class ReviewService {
         Product product = productRepo.getById(review.getProductId());
         Users user;
         if(review.getUser().getUsername() == null || userRepo.findByUsername(review.getUser().getUsername()) == null){
-            user = new Users();
             UserDto userDto = review.getUser();
+            user = userMapper.DtoToEntity(userDto);
             user.setUsername(passwordEncoder.encode("username"));
-            user.setAddress(userDto.getAddress());
-            user.setEmail(userDto.getEmail());
-            user.setLastName(userDto.getLastName());
-            user.setFirstName(userDto.getFirstName());
             user.setPassword(passwordEncoder.encode("password"));
             user.setRole("USER");
             userRepo.save(user);

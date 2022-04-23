@@ -7,9 +7,10 @@ import org.springframework.data.repository.query.Param;
 
 public interface CartRepo extends JpaRepository<Cart, String> {
 
-    @Query(value = "select * from carts c where c.id = :cartId and c.user_id in (select id from users u where u.username = :username)",
+    @Query(value = "select * from carts c where c.id = :cart_id and c.user_id in (select id from users u where u.username = :username)",
         nativeQuery = true)
-    Cart getByIdAndUsername(@Param("cartId") String cartId,@Param("username") String username);
+    Cart getByIdAndUsername(@Param("cart_id") String cartId,@Param("username") String username);
 
-    boolean existsByIdAndUserUsername(String id, String username);
+    @Query(value = "select * from carts c where c.id = :cart_id and c.user_id in (select id from users u where u.phone_number = :phone_number)", nativeQuery = true)
+    Cart getByPhoneNumberAndId(@Param("phone_number") String phoneNumber, @Param("cart_id") String id);
 }

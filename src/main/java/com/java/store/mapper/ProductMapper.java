@@ -3,8 +3,6 @@ package com.java.store.mapper;
 import com.java.store.dto.ProductDto;
 import com.java.store.dto.ProductInfoDto;
 import com.java.store.module.Product;
-import com.java.store.module.Tags;
-import com.java.store.repository.ProductRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +12,6 @@ import java.util.Set;
 @Service
 @AllArgsConstructor
 public class ProductMapper implements BaseMapper<ProductDto, Product>{
-    private final ProductRepo productRepo;
     @Override
     public Product DtoToEntity(ProductDto productDto) {
         Product product = new Product();

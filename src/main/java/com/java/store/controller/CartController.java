@@ -19,34 +19,25 @@ public class CartController {
     @Autowired
     private final CartService cartService;
 
-    @GetMapping(path = "cart-info")
-    public ResponseEntity<Object> getCartById(@RequestParam String id, Authentication authentication){
+    @GetMapping(path = "/api/cart-info")
+    public ResponseEntity<Object> getCartByPhoneNumberAndId(@RequestParam String phoneNumber, String id){
         try{
-            if(authentication.getAuthorities().toArray()[0].toString().equals(Role.ADMIN.name())){
-                ResponseDto res = new ResponseDto(OK.value(),OK.toString(),cartService.getCartById(id));
-                return new ResponseEntity<>(res, OK);
-            }
-            ResponseDto res = new ResponseDto(OK.value(),OK.toString(),cartService.getCartByIdAndUsername(id, authentication.getPrincipal().toString()));
+            ResponseDto res = new ResponseDto(OK.value(),OK.toString(), cartService.getCartByPhoneNumberAndId(phoneNumber, id));
             return new ResponseEntity<>(res, OK);
-
-
         } catch (Exception ex){
             ResponseDto res = new ResponseDto(BAD_REQUEST.value(), ex.getMessage());
             return new ResponseEntity<>(res, BAD_REQUEST);
         }
     }
 
-    @PostMapping(path = "add-cart")
-    public ResponseEntity<Object> addCart(@RequestBody CartDto cart, Authentication authentication){
+    @PostMapping(path = "/api/add-cart")
+    public ResponseEntity<Object> addCart(@RequestBody CartDto cart){
         try {
-            if(!authentication.getPrincipal().toString().equals(cart.getUser().getUsername())) {
-                if(!authentication.getAuthorities().toArray()[0].toString().equals(Role.ADMIN.name()))
-                    throw new Exception(BAD_REQUEST.toString());
-            }
-            cartService.addCart(cart);
+
             return new ResponseEntity<>(new ResponseDto(
                     OK.value(),
-                    OK.toString()
+                    OK.toString(),
+                    cartService.addCart(cart)
             ), OK);
         } catch (Exception ex){
             ResponseDto res = new ResponseDto(BAD_REQUEST.value(), ex.getMessage());
