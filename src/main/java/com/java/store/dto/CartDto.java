@@ -11,6 +11,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 public class CartDto {
+    private String id;
     private Set<ProductDto> products;
     private UserDto user;
     private Set<String> discountCode;

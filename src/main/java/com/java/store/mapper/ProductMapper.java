@@ -21,11 +21,14 @@ public class ProductMapper implements BaseMapper<ProductDto, Product>{
         product.setInformation(productDto.getInformation());
         product.setQuantity(productDto.getQuantity());
         product.setImageUrl(productDto.getImageUrl());
-        product.setMainImage(productDto.getMainImage());
+        if(!productDto.getMainImage().equals("null"))
+            product.setMainImage(productDto.getMainImage());
         product.setVoteNumber(productDto.getVoteNumber());
         product.setAverageRatting(productDto.getAverageRatting());
         product.setTitleUrl(productDto.getTitleUrl());
-        product.setProductTag(productDto.getProductTag());
+        if(!productDto.getProductTag().equals("") && !productDto.getProductTag().equals("null"))
+            product.setProductTag(productDto.getProductTag());
+        else product.setProductTag(null);
         product.setSpecifications(productDto.getSpecifications());
         product.setMemory(productDto.getMemory());
         return product;

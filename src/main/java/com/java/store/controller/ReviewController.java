@@ -28,6 +28,14 @@ public class ReviewController {
             return new ResponseEntity<>(new ResponseDto(BAD_REQUEST.value(), exception.getMessage()), BAD_REQUEST);
         }
     }
+    @GetMapping(path ="/review-info")
+    public ResponseEntity<Object> getReviewById(@RequestParam Long id){
+        try {
+            return new ResponseEntity<>(new ResponseDto(OK.value(), OK.toString(), reviewService.getReviewById(id)), OK);
+        } catch (Exception exception) {
+            return new ResponseEntity<>(new ResponseDto(BAD_REQUEST.value(), exception.getMessage()), BAD_REQUEST);
+        }
+    }
 
     @PostMapping(path = "/api/add-review")
     public ResponseEntity<Object> addNewReview(@RequestBody NewReviewDto review){

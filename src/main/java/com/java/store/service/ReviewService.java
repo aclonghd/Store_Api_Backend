@@ -72,6 +72,20 @@ public class ReviewService {
         } throw new Exception("Bad request");
     }
 
+    public ReviewDto getReviewById(Long id) throws Exception{
+        if(reviewRepo.existsById(id)){
+            ReviewDto res = reviewMapper.EntityToDto(reviewRepo.getById(id));
+            List<ReviewDto> replyRes = new ArrayList<>();
+            List<Review> replyList = reviewRepo.findAllByParentId(res.getId());
+            for (Review reply: replyList) {
+                ReviewDto replyDto = reviewMapper.EntityToDto(reply);
+                replyRes.add(replyDto);
+            }
+            res.setReply(replyRes);
+            return res;
+        } throw new Exception("Bad request");
+    }
+
     public void addReview(NewReviewDto review) throws Exception{
         if(!productRepo.existsById(review.getProductId())) throw new Exception("Product does not exist");
         Product product = productRepo.getById(review.getProductId());

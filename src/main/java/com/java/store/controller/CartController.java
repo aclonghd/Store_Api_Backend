@@ -47,6 +47,30 @@ public class CartController {
 
     @GetMapping(path = "all-cart-info")
     public ResponseEntity<Object> getAllCart(){
-        return new ResponseEntity<>(cartService.getAllCart(), OK);
+        ResponseDto responseDto = new ResponseDto();
+        try {
+            responseDto.setResult(cartService.getAllCart());
+            responseDto.setCode(OK.value());
+            responseDto.setMessage(OK.toString());
+            return new ResponseEntity<>(responseDto, OK);
+        } catch (Exception exception){
+            responseDto.setCode(BAD_REQUEST.value());
+            responseDto.setMessage(exception.getMessage());
+            return new ResponseEntity<>(responseDto, BAD_REQUEST);
+        }
+    }
+    @PostMapping(path = "update-cart")
+    public ResponseEntity<Object> updateCart(@RequestBody CartDto cartDto){
+        ResponseDto responseDto = new ResponseDto();
+        try {
+            cartService.updateCart(cartDto);
+            responseDto.setCode(OK.value());
+            responseDto.setMessage(OK.toString());
+            return new ResponseEntity<>(responseDto, OK);
+        } catch (Exception exception){
+            responseDto.setCode(BAD_REQUEST.value());
+            responseDto.setMessage(exception.getMessage());
+            return new ResponseEntity<>(responseDto, BAD_REQUEST);
+        }
     }
 }

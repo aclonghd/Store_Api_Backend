@@ -2,7 +2,6 @@ package com.java.store.controller;
 
 import com.java.store.dto.ProductDto;
 import com.java.store.dto.ResponseDto;
-import com.java.store.module.Product;
 import com.java.store.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -98,8 +98,14 @@ public class CartService {
         return cart.getId();
     }
 
-    public void updateCart(Cart cart){
-
+    public void updateCart(CartDto cartDto) throws Exception{
+        if(cartRepo.existsById(cartDto.getId())){
+            Cart cart = cartRepo.findById(cartDto.getId()).get();
+            cart.setStatus(cartDto.getStatus());
+            cartRepo.save(cart);
+            return;
+        }
+        throw new Exception("Bad Request");
     }
 
 }

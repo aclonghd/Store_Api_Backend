@@ -54,7 +54,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         if(size == 12) role = "ADMIN";
         String access_token = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 15 * 60 * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
                 .withClaim("roles", role)
                 .sign(Algorithm.HMAC256(jwtConfig.getSecretKey().getBytes()));
         String refresh_token = JWT.create()

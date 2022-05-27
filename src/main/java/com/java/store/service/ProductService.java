@@ -57,19 +57,21 @@ public class ProductService {
         product.setVoteNumber(0);
         product.setAverageRatting(0);
         Set<Tags> tags = new HashSet<>();
-        newProduct.getTags().forEach(tagTitle ->{
-            Tags tag = new Tags();
-            if(!tagRepo.existsByTitle(tagTitle)){
-
-                tag.setTitle(tagTitle);
-                tagRepo.save(tag);
-                tagRepo.flush();
-
-            } else {
-                tag = tagRepo.getByTitle(tagTitle);
+        if(newProduct.getTags() != null) {
+            for (String tagTitle : newProduct.getTags()) {
+                Tags tag = new Tags();
+                if (!tagTitle.equals("")) {
+                    if (!tagRepo.existsByTitle(tagTitle)) {
+                        tag.setTitle(tagTitle);
+                        tagRepo.save(tag);
+                        tagRepo.flush();
+                    } else {
+                        tag = tagRepo.getByTitle(tagTitle);
+                    }
+                    tags.add(tag);
+                }
             }
-            tags.add(tag);
-        });
+        }
         product.setTags(tags);
         productRepo.save(product);
         productRepo.flush();
@@ -95,21 +97,25 @@ public class ProductService {
         Product product = productMapper.DtoToEntity(productDto);
         product.setId(productDto.getId());
         Set<Tags> tags = new HashSet<>();
-        productDto.getTags().forEach(tagTitle ->{
-            Tags tag = new Tags();
-            if(!tagRepo.existsByTitle(tagTitle)){
+        if(productDto.getTags() != null) {
+            productDto.getTags().forEach(tagTitle -> {
+                Tags tag = new Tags();
+                if (!tagTitle.equals("")) {
+                    if (!tagRepo.existsByTitle(tagTitle)) {
 
-                tag.setTitle(tagTitle);
-                tagRepo.save(tag);
-                tagRepo.flush();
+                        tag.setTitle(tagTitle);
+                        tagRepo.save(tag);
+                        tagRepo.flush();
 
-            } else {
-                tag = tagRepo.getByTitle(tagTitle);
-            }
-            tags.add(tag);
-        });
+                    } else {
+                        tag = tagRepo.getByTitle(tagTitle);
+                    }
+                    tags.add(tag);
+                }
+            });
+        }
         product.setTags(tags);
-        if(product.getMainImage() == null && !product.getImageUrl().isEmpty()) product.setMainImage(product.getImageUrl().stream().findFirst().get());
+        if((product.getMainImage() == null || product.getMainImage().equals("null")) && !product.getImageUrl().isEmpty()) product.setMainImage(product.getImageUrl().stream().findFirst().get());
         productRepo.save(product);
     }
 
@@ -132,7 +138,7 @@ public class ProductService {
         for(MultipartFile fileDto : fileDtoList){
             if(Arrays.stream(mimeTypeValid).noneMatch(Objects.requireNonNull(fileDto.getContentType())::equalsIgnoreCase)) throw new Exception("File type is invalid");
             String photoId = gDriveCloudService.uploadFile(fileDto, productId.toString());
-            String urlImage = String.format("https://drive.google.com/uc?export=view&id=%s", photoId);
+            String urlImage = String.format("https://drive.google.com/uc?id=%s", photoId);
             product.getImageUrl().add(urlImage);
         }
         if(product.getMainImage() == null){
@@ -146,8 +152,8 @@ public class ProductService {
         if(!productRepo.existsById(productId)) throw new Exception("Product id is invalid");
         Product product = productRepo.getById(productId);
         gDriveCloudService.deleteFile(photoId);
-        product.getImageUrl().remove(String.format("https://drive.google.com/uc?export=view&id=%s", photoId));
-        if(product.getMainImage().equals(String.format("https://drive.google.com/uc?export=view&id=%s", photoId))) {
+        product.getImageUrl().remove(String.format("https://drive.google.com/uc?id=%s", photoId));
+        if(product.getMainImage().equals(String.format("https://drive.google.com/uc?id=%s", photoId))) {
             if(product.getImageUrl().stream().findFirst().isPresent())
                 product.setMainImage(product.getImageUrl().stream().findFirst().get());
             else
