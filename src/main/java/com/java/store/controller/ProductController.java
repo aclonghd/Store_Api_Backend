@@ -1,174 +1,93 @@
 package com.java.store.controller;
 
 import com.java.store.dto.ProductDto;
-import com.java.store.dto.ResponseDto;
+import com.java.store.dto.response.ResponseDto;
 import com.java.store.service.ProductService;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import static org.springframework.http.HttpStatus.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping(path = "product")
-@AllArgsConstructor
+@RequestMapping(path = "products")
+@Validated
 public class ProductController{
-    @Autowired
     private final ProductService productService;
 
-    @GetMapping(path = "api/product-info")
-    public ResponseEntity<Object> getProduct(@RequestParam Long id){
-        ResponseDto responseDto = new ResponseDto();
-        try
-        {
-            List<ProductDto> res = new ArrayList<>();
-            res.add(productService.getProduct(id));
-            responseDto.setResult(res);
-            responseDto.setCode(OK.value());
-            responseDto.setMessage(OK.toString());
-            return new ResponseEntity<>(responseDto, OK);
-        } catch (Exception ex){
+    @Autowired
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
-            responseDto.setCode(BAD_REQUEST.value());
-            responseDto.setMessage(ex.getMessage());
-            return new ResponseEntity<>(responseDto, BAD_REQUEST);
-        }
+    @GetMapping(path = "api/product-info")
+    public ResponseEntity<Object> getProduct(@RequestParam @NotNull Long id){
+        ResponseDto responseDto = new ResponseDto(OK.value(), OK.toString(),  productService.getProduct(id));
+        return new ResponseEntity<>(responseDto, OK);
     }
 
     @GetMapping(path = "api/product-info-url")
-    public ResponseEntity<Object> getProductByTitleUrl(@RequestParam String titleUrl){
-        ResponseDto responseDto = new ResponseDto();
-        try
-        {
-            List<ProductDto> res = new ArrayList<>();
-            res.add(productService.getProductByTitleUrl(titleUrl));
-            responseDto.setResult(res);
-            responseDto.setCode(OK.value());
-            responseDto.setMessage(OK.toString());
-            return new ResponseEntity<>(responseDto, OK);
-        } catch (Exception ex){
-
-            responseDto.setCode(BAD_REQUEST.value());
-            responseDto.setMessage(ex.getMessage());
-            return new ResponseEntity<>(responseDto, BAD_REQUEST);
-        }
+    public ResponseEntity<Object> getProductByTitleUrl(@RequestParam @NotBlank String titleUrl) {
+        ResponseDto responseDto = new ResponseDto(OK.value(), OK.toString(), productService.getProductByTitleUrl(titleUrl));
+        return new ResponseEntity<>(responseDto, OK);
     }
 
     @GetMapping(path = "api/all-product-info")
     public ResponseEntity<Object> getAllProduct(){
-        ResponseDto responseDto = new ResponseDto();
-        try
-        {
-            responseDto.setCode(OK.value());
-            responseDto.setMessage(OK.toString());
-            responseDto.setResult(productService.getAllProduct());
-            return new ResponseEntity<>(responseDto, OK);
-        } catch (Exception ex){
-
-            responseDto.setCode(BAD_REQUEST.value());
-            responseDto.setMessage(ex.getMessage());
-            return new ResponseEntity<>(responseDto, BAD_REQUEST);
-        }
+        ResponseDto responseDto = new ResponseDto(OK.value(), OK.toString(), productService.getAllProduct());
+        return new ResponseEntity<>(responseDto, OK);
     }
 
     @GetMapping(path = "get-all-productTag")
     public ResponseEntity<Object> getAllProductTag(){
-        ResponseDto responseDto = new ResponseDto();
-        try
-        {
-            responseDto.setCode(OK.value());
-            responseDto.setMessage(OK.toString());
-            responseDto.setResult(productService.getAllProductTag());
-            return new ResponseEntity<>(responseDto, OK);
-        } catch (Exception ex){
-
-            responseDto.setCode(BAD_REQUEST.value());
-            responseDto.setMessage(ex.getMessage());
-            return new ResponseEntity<>(responseDto, BAD_REQUEST);
-        }
+        ResponseDto responseDto = new ResponseDto(OK.value(), OK.toString(), productService.getAllProductTag());
+        return new ResponseEntity<>(responseDto, OK);
     }
 
     @GetMapping(path = "api/product")
-    public ResponseEntity<Object> findAllByProductTag(@RequestParam String productTag){
-        ResponseDto responseDto = new ResponseDto();
-        try
-        {
-            responseDto.setCode(OK.value());
-            responseDto.setMessage(OK.toString());
-            responseDto.setResult(productService.findAllByProductTag(productTag));
-            return new ResponseEntity<>(responseDto, OK);
-        } catch (Exception ex){
-
-            responseDto.setCode(BAD_REQUEST.value());
-            responseDto.setMessage(ex.getMessage());
-            return new ResponseEntity<>(responseDto, BAD_REQUEST);
-        }
+    public ResponseEntity<Object> findAllByProductTag(@RequestParam @NotBlank String productTag){
+        ResponseDto responseDto = new ResponseDto(OK.value(), OK.toString(), productService.findAllByProductTag(productTag));
+        return new ResponseEntity<>(responseDto, OK);
     }
 
     @PostMapping(path = "add-product", consumes = {"multipart/form-data"})
-    public ResponseEntity<Object> addProduct(@ModelAttribute ProductDto product){
-        ResponseDto responseDto = new ResponseDto();
-        try
-        {
-            return new ResponseEntity<>(new ResponseDto(OK.value(), OK.toString(), productService.addProduct(product)), OK);
-        } catch (Exception ex){
-            responseDto.setCode(BAD_REQUEST.value());
-            responseDto.setMessage(ex.getMessage());
-            return new ResponseEntity<>(responseDto, BAD_REQUEST);
-        }
+    public ResponseEntity<Object> addProduct(@RequestBody @Valid ProductDto product, @ModelAttribute Set<MultipartFile> files) {
+        return new ResponseEntity<>(new ResponseDto(OK.value(), OK.toString(), productService.addProduct(product, files)), OK);
     }
 
-    @PostMapping(path = "update-product")
-    public ResponseEntity<Object> updateProduct(@RequestBody ProductDto product){
-        ResponseDto responseDto = new ResponseDto();
-        try {
-            productService.updateProduct(product);
-            responseDto.setCode(OK.value());
-            responseDto.setMessage(OK.toString());
-            return new ResponseEntity<>(responseDto, OK);
-        } catch (Exception exception){
-            responseDto.setCode(BAD_REQUEST.value());
-            responseDto.setMessage(exception.getMessage());
-            return new ResponseEntity<>(responseDto, BAD_REQUEST);
-        }
+    @PutMapping(path = "update-product")
+    public ResponseEntity<Object> updateProduct(@RequestBody @Valid ProductDto product) {
+        productService.updateProduct(product);
+        return new ResponseEntity<>(new ResponseDto(OK.value(), OK.toString()), OK);
     }
 
     @DeleteMapping(path = "delete-product")
-    public ResponseEntity<Object> deleteProduct(@RequestParam Long id){
-        ResponseDto responseDto = new ResponseDto();
-        try {
-            productService.deleteProduct(id);
-            responseDto.setCode(OK.value());
-            responseDto.setMessage(OK.toString());
-            return new ResponseEntity<>(responseDto, OK);
-        } catch (Exception exception){
-            responseDto.setCode(BAD_REQUEST.value());
-            responseDto.setMessage(exception.getMessage());
-            return new ResponseEntity<>(responseDto, BAD_REQUEST);
-        }
-    }
-    @PostMapping(path = "{product-id}/import-image")
-    public ResponseEntity<Object> importImage(@PathVariable("product-id") Long productId,@ModelAttribute List<MultipartFile> fileUploadList){
-        try{
+    public ResponseEntity<Object> deleteProduct(@RequestParam @NotNull Long id) {
+        productService.deleteProduct(id);
+        return new ResponseEntity<>(new ResponseDto(OK.value(), OK.toString()), OK);
 
-            return new ResponseEntity<>(new ResponseDto(OK.value(), "upload image success", productService.uploadPhotosToProduct(fileUploadList, productId)), OK);
-        } catch (Exception ex){
-            return new ResponseEntity<>(new ResponseDto(BAD_REQUEST.value(), ex.getMessage()), BAD_REQUEST);
-        }
+    }
+    @PutMapping(path = "{product-id}/import-image")
+    public ResponseEntity<Object> importImage(@PathVariable("product-id") Long productId,@ModelAttribute List<MultipartFile> fileUploadList){
+        return new ResponseEntity<>(new ResponseDto(OK.value(), "upload image success", productService.uploadPhotosToProduct(fileUploadList, productId)), OK);
+
     }
     @DeleteMapping(path = "{product-id}/delete-image")
-    public ResponseEntity<Object> deletePhotoFromProduct(@PathVariable("product-id") Long productId, @RequestParam String photoId){
-        try{
-            productService.removePhotoFromProduct(photoId, productId);
-            return new ResponseEntity<>(new ResponseDto(OK.value(), "delete success"), OK);
-        } catch (Exception ex){
-            return new ResponseEntity<>(new ResponseDto(BAD_REQUEST.value(), ex.getMessage()), BAD_REQUEST);
-        }
+    public ResponseEntity<Object> deletePhotoFromProduct(@PathVariable("product-id") @NotNull Long productId, @RequestParam @NotBlank String photoId){
+        productService.removePhotoFromProduct(photoId, productId);
+        return new ResponseEntity<>(new ResponseDto(OK.value(), "delete success"), OK);
+
     }
 }

@@ -2,8 +2,6 @@ package com.java.store.service;
 
 import com.google.api.services.drive.model.File;
 import com.java.store.google.GoogleDriveManager;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,11 +12,15 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@AllArgsConstructor
 @Service
 public class GDriveCloudService {
-    @Autowired
+
     private final GoogleDriveManager googleDriveManager;
+    @Autowired
+    public GDriveCloudService(GoogleDriveManager googleDriveManager) {
+        this.googleDriveManager = googleDriveManager;
+    }
+
     public List<File> getAllGoogleDriveFiles() throws IOException, GeneralSecurityException {
         return googleDriveManager.getAllGoogleDriveFiles();
     }

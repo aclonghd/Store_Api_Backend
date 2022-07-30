@@ -1,21 +1,25 @@
 package com.java.store.controller;
 
-import com.java.store.dto.ResponseDto;
+import com.java.store.dto.response.ResponseDto;
 import com.java.store.module.Discount;
 import com.java.store.service.DiscountService;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import static org.springframework.http.HttpStatus.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping(path = "discount")
-@AllArgsConstructor
+@RequestMapping(path = "discounts")
 public class DiscountController {
-    @Autowired
     private final DiscountService discountService;
+
+    @Autowired
+    public DiscountController(DiscountService discountService) {
+        this.discountService = discountService;
+    }
 
     @PostMapping(path = "add-discount")
     public ResponseEntity<Object> addDiscount(@RequestBody Discount discount){

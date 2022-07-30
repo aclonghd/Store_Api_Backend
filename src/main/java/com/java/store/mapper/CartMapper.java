@@ -4,7 +4,7 @@ import com.java.store.dto.CartDto;
 import com.java.store.dto.ProductDto;
 import com.java.store.module.Cart;
 import com.java.store.module.Product;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -12,10 +12,16 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
-@AllArgsConstructor
 public class CartMapper implements BaseMapper<CartDto, Cart>{
     private final UserMapper userMapper;
     private  final ProductMapper productMapper;
+
+    @Autowired
+    public CartMapper(UserMapper userMapper, ProductMapper productMapper) {
+        this.userMapper = userMapper;
+        this.productMapper = productMapper;
+    }
+
     @Override
     public Cart DtoToEntity(CartDto cartDto) {
         Cart res = new Cart();

@@ -1,10 +1,11 @@
 package com.java.store.service;
 
-import com.java.store.dto.UserDto;
+import com.java.store.dto.request.UserRequest;
+import com.java.store.dto.response.UserResponse;
+import com.java.store.exception.ServiceException;
 import com.java.store.mapper.UserMapper;
 import com.java.store.module.Users;
 import com.java.store.repository.UserRepo;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,18 +13,24 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import static org.springframework.http.HttpStatus.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
 
 @Service
-@RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-    @Autowired
     private final UserRepo userRepo;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserService(UserRepo userRepo, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+        this.userRepo = userRepo;
+        this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Users user = userRepo.findByUsername(username);
@@ -33,32 +40,32 @@ public class UserService implements UserDetailsService {
         return new User(user.getUsername(), user.getPassword(), user.getAuthorities());
     }
 
-    public UserDto getUserInfoByUsername(String username) throws Exception{
+    public UserResponse getUserInfoByUsername(String username){
         Users user = userRepo.findByUsername(username);
         if(user == null){
-            throw new Exception("Bad Request");
+            throw new ServiceException(BAD_REQUEST.value(),BAD_REQUEST.toString());
         }
 
         return userMapper.EntityToDto(user);
     }
 
-    public void register(UserDto userDto) throws Exception{
-        if(userRepo.findByUsername(userDto.getUsername()) != null){
-            throw new Exception("Username has already been taken!");
+    public void register(UserRequest userRequest) {
+        if(userRepo.findByUsername(userRequest.getUsername()) != null){
+            throw new ServiceException(BAD_REQUEST.value(),"Username has already been taken!");
         }
-        Users user = userMapper.DtoToEntity(userDto);
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        Users user = userMapper.DtoToEntity(userRequest);
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         userRepo.save(user);
     }
 
-    public void updateUserInformation(UserDto userDto) throws Exception{
-        Users userOrigin = userRepo.findByUsername(userDto.getUsername());
-        if(userOrigin == null) throw new Exception("Bad Request");
-        userOrigin.setFirstName(userDto.getFirstName());
-        userOrigin.setLastName(userDto.getLastName());
-        userOrigin.setAddress(userDto.getAddress());
-        userOrigin.setAge(userDto.getAge());
-        userOrigin.setEmail(userDto.getEmail());
+    public void updateUserInformation(UserRequest userResponse) {
+        Users userOrigin = userRepo.findByUsername(userResponse.getUsername());
+        if(userOrigin == null) throw new ServiceException(BAD_REQUEST.value(),BAD_REQUEST.toString());
+        userOrigin.setFirstName(userResponse.getFirstName());
+        userOrigin.setLastName(userResponse.getLastName());
+        userOrigin.setAddress(userResponse.getAddress());
+        userOrigin.setAge(userResponse.getAge());
+        userOrigin.setEmail(userResponse.getEmail());
         userRepo.save(userOrigin);
     }
 
@@ -72,7 +79,7 @@ public class UserService implements UserDetailsService {
         return false;
     }
 
-    public List<UserDto> getAllUserInfo(){
+    public List<UserResponse> getAllUserInfo(){
         List<Users> all = userRepo.findAll();
         return all.stream().map(userMapper::EntityToDto).collect(Collectors.toList());
     }

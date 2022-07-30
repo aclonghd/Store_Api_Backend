@@ -1,8 +1,9 @@
 package com.java.store.service;
 
-import com.java.store.dto.NewReviewDto;
-import com.java.store.dto.ReviewDto;
-import com.java.store.dto.UserDto;
+import com.java.store.dto.request.NewReviewRequest;
+import com.java.store.dto.response.ReviewResponse;
+import com.java.store.dto.response.UserResponse;
+import com.java.store.exception.ServiceException;
 import com.java.store.mapper.ReviewMapper;
 import com.java.store.mapper.UserMapper;
 import com.java.store.module.Product;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 @Service
 @AllArgsConstructor
 public class ReviewService {
@@ -28,76 +31,74 @@ public class ReviewService {
     private final ProductRepo productRepo;
     private final PasswordEncoder passwordEncoder;
 
-    public List<ReviewDto> getAllReview(){
-        List<ReviewDto> res = new ArrayList<>();
+    public List<ReviewResponse> getAllReview(){
+        List<ReviewResponse> res = new ArrayList<>();
         List<Review> reviews = reviewRepo.findAll();
         for(Review review: reviews){
             if(review.getReviewParent() == null) {
-                ReviewDto reviewDto = reviewMapper.EntityToDto(review);
-                res.add(reviewDto);
+                ReviewResponse reviewResponse = reviewMapper.EntityToDto(review);
+                res.add(reviewResponse);
             }
         }
-        for(ReviewDto reviewDto: res){
-            List<ReviewDto> replyRes = new ArrayList<>();
-            List<Review> replyList = reviewRepo.findAllByParentId(reviewDto.getId());
+        for(ReviewResponse reviewResponse : res){
+            List<ReviewResponse> replyRes = new ArrayList<>();
+            List<Review> replyList = reviewRepo.findAllByParentId(reviewResponse.getId());
             for (Review reply: replyList) {
-                ReviewDto replyDto = reviewMapper.EntityToDto(reply);
+                ReviewResponse replyDto = reviewMapper.EntityToDto(reply);
                 replyRes.add(replyDto);
             }
-            reviewDto.setReply(replyRes);
+            reviewResponse.setReply(replyRes);
         }
         return res;
     }
 
-    public List<ReviewDto> getReviewByProductId(Long productId) throws Exception{
+    public List<ReviewResponse> getReviewByProductId(Long productId){
         if(productRepo.existsById(productId)){
-            List<ReviewDto> res = new ArrayList<>();
+            List<ReviewResponse> res = new ArrayList<>();
             List<Review> reviews = reviewRepo.findAllByProductId(productId);
             for(Review review: reviews){
                 if(review.getReviewParent() == null) {
-                    ReviewDto reviewDto = reviewMapper.EntityToDto(review);
-                    res.add(reviewDto);
+                    ReviewResponse reviewResponse = reviewMapper.EntityToDto(review);
+                    res.add(reviewResponse);
                 }
             }
-            for(ReviewDto reviewDto: res){
-                List<ReviewDto> replyRes = new ArrayList<>();
-                List<Review> replyList = reviewRepo.findAllByParentId(reviewDto.getId());
+            for(ReviewResponse reviewResponse : res){
+                List<ReviewResponse> replyRes = new ArrayList<>();
+                List<Review> replyList = reviewRepo.findAllByParentId(reviewResponse.getId());
                 for (Review reply: replyList) {
-                    ReviewDto replyDto = reviewMapper.EntityToDto(reply);
+                    ReviewResponse replyDto = reviewMapper.EntityToDto(reply);
                     replyRes.add(replyDto);
                 }
-                reviewDto.setReply(replyRes);
+                reviewResponse.setReply(replyRes);
             }
             return res;
-        } throw new Exception("Bad request");
+        } throw new ServiceException(BAD_REQUEST.value(),BAD_REQUEST.toString());
     }
 
-    public ReviewDto getReviewById(Long id) throws Exception{
+    public ReviewResponse getReviewById(Long id){
         if(reviewRepo.existsById(id)){
-            ReviewDto res = reviewMapper.EntityToDto(reviewRepo.getById(id));
-            List<ReviewDto> replyRes = new ArrayList<>();
+            ReviewResponse res = reviewMapper.EntityToDto(reviewRepo.getById(id));
+            List<ReviewResponse> replyRes = new ArrayList<>();
             List<Review> replyList = reviewRepo.findAllByParentId(res.getId());
             for (Review reply: replyList) {
-                ReviewDto replyDto = reviewMapper.EntityToDto(reply);
+                ReviewResponse replyDto = reviewMapper.EntityToDto(reply);
                 replyRes.add(replyDto);
             }
             res.setReply(replyRes);
             return res;
-        } throw new Exception("Bad request");
+        } throw new ServiceException(BAD_REQUEST.value(),BAD_REQUEST.toString());
     }
 
-    public void addReview(NewReviewDto review) throws Exception{
-        if(!productRepo.existsById(review.getProductId())) throw new Exception("Product does not exist");
+    public void addReview(NewReviewRequest review) {
+        if(!productRepo.existsById(review.getProductId())) throw new ServiceException(BAD_REQUEST.value(),"Product does not exist");
         Product product = productRepo.getById(review.getProductId());
         product.setVoteNumber(product.getVoteNumber()+1);
-        float averageScore = reviewRepo.getProductAverageScore(product.getId());
-        if(averageScore != 0)
-            product.setAverageRatting((averageScore + review.getReviewScore())/ 2);
-        else product.setAverageRatting(review.getReviewScore());
+        float totalScore = product.getTotalRatingScore() + review.getReviewScore();
+        product.setTotalRatingScore(totalScore);
         Users user;
         if(review.getUser().getUsername() == null || userRepo.findByUsername(review.getUser().getUsername()) == null){
-            UserDto userDto = review.getUser();
-            user = userMapper.DtoToEntity(userDto);
+            UserResponse userResponse = review.getUser();
+            user = userMapper.DtoToEntity(userResponse);
             user.setUsername(passwordEncoder.encode("username"));
             user.setPassword(passwordEncoder.encode("password"));
             user.setRole("USER");
@@ -109,15 +110,15 @@ public class ReviewService {
         reviewRepo.save(reviewMapper.NewDtoToEntity(review, user, product, null));
     }
 
-    public void addReply(NewReviewDto review) throws Exception{
-        if(!productRepo.existsById(review.getProductId())) throw new Exception("Product does not exist");
-        if(!reviewRepo.existsById(review.getParentId())) throw new Exception("parent for this reply not found");
+    public void addReply(NewReviewRequest review) {
+        if(!productRepo.existsById(review.getProductId())) throw new ServiceException(BAD_REQUEST.value(),"Product does not exist");
+        if(!reviewRepo.existsById(review.getParentId())) throw new ServiceException(BAD_REQUEST.value(),"parent for this reply not found");
         Review reviewParent = reviewRepo.getById(review.getParentId());
         Product product = productRepo.getById(review.getProductId());
         Users user;
         if(review.getUser().getUsername() == null || userRepo.findByUsername(review.getUser().getUsername()) == null){
-            UserDto userDto = review.getUser();
-            user = userMapper.DtoToEntity(userDto);
+            UserResponse userResponse = review.getUser();
+            user = userMapper.DtoToEntity(userResponse);
             user.setUsername(passwordEncoder.encode("username"));
             user.setPassword(passwordEncoder.encode("password"));
             user.setRole("USER");

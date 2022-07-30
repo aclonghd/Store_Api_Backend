@@ -6,7 +6,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.java.store.JWTConfig;
-import com.java.store.dto.ResponseDto;
+import com.java.store.dto.response.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -52,9 +52,7 @@ public class AuthorizationCustomFilter extends OncePerRequestFilter {
                 } catch (Exception exception){
                     response.setStatus(HttpStatus.FORBIDDEN.value());
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                    ResponseDto responseDto = new ResponseDto();
-                    responseDto.setCode(HttpStatus.FORBIDDEN.value());
-                    responseDto.setMessage(exception.getMessage());
+                    ResponseDto responseDto = new ResponseDto(HttpStatus.FORBIDDEN.value(), exception.getMessage());
                     ObjectMapper objectMapper = new ObjectMapper();
                     objectMapper.registerModule(new JavaTimeModule());
                     objectMapper.writeValue(response.getOutputStream(), responseDto);

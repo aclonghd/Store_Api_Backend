@@ -3,7 +3,8 @@ package com.java.store.service;
 
 import com.java.store.dto.CartDto;
 import com.java.store.dto.ProductDto;
-import com.java.store.dto.UserDto;
+import com.java.store.dto.response.UserResponse;
+import com.java.store.exception.ServiceException;
 import com.java.store.mapper.CartMapper;
 import com.java.store.mapper.UserMapper;
 import com.java.store.module.Cart;
@@ -15,18 +16,16 @@ import com.java.store.repository.DiscountRepo;
 import com.java.store.repository.ProductRepo;
 import com.java.store.repository.UserRepo;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import static org.springframework.http.HttpStatus.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class CartService {
-    @Autowired
     private final CartRepo cartRepo;
     private final CartMapper cartMapper;
     private final UserRepo userRepo;
@@ -41,7 +40,7 @@ public class CartService {
 
             return cartMapper.EntityToDto(cart);
         }
-        throw new Exception("Bad Request");
+        throw new Exception(BAD_REQUEST.toString());
     }
 
     public CartDto getCartByPhoneNumberAndId(String phoneNumber, String id) {
@@ -54,7 +53,7 @@ public class CartService {
         return cartDtoList;
     }
 
-    public String addCart(CartDto cartDto) throws Exception{
+    public String addCart(CartDto cartDto) {
         float totalPrice = 0;
         Map<Product, Integer> products = new HashMap<>();
         for(ProductDto p : cartDto.getProducts()){
@@ -63,7 +62,7 @@ public class CartService {
                 products.put(product, p.getAmount());
                 totalPrice += product.getPrice()*p.getAmount();
 
-            } else throw new Exception("Bad request");
+            } else throw new ServiceException(BAD_REQUEST.value(), BAD_REQUEST.toString());
         }
         String username = cartDto.getUser().getUsername();
         Users user;
@@ -74,7 +73,7 @@ public class CartService {
             for (String discountCode : discountCodeList) {
                 Discount discount = discountRepo.getByDiscountCode(discountCode);
                 if (discount.getExpiryDate().isBefore(LocalDateTime.now())) {
-                    throw new Exception("Discount code is expired");
+                    throw new ServiceException(BAD_REQUEST.value(), "Discount code is expired");
                 }
                 cart.setTotalPrice(totalPrice - discount.getDiscountValue());
                 discountApply.add(discount);
@@ -82,8 +81,8 @@ public class CartService {
             cart.setDiscountApply(discountApply);
         } else cart.setTotalPrice(totalPrice);
         if(username == null || userRepo.findByUsername(username) == null){
-            UserDto userDto = cartDto.getUser();
-            user = userMapper.DtoToEntity(userDto);
+            UserResponse userResponse = cartDto.getUser();
+            user = userMapper.DtoToEntity(userResponse);
             user.setUsername(passwordEncoder.encode("username"));
             user.setPassword(passwordEncoder.encode("password"));
             user.setRole("USER");
@@ -98,14 +97,14 @@ public class CartService {
         return cart.getId();
     }
 
-    public void updateCart(CartDto cartDto) throws Exception{
+    public void updateCart(CartDto cartDto){
         if(cartRepo.existsById(cartDto.getId())){
             Cart cart = cartRepo.findById(cartDto.getId()).get();
             cart.setStatus(cartDto.getStatus());
             cartRepo.save(cart);
             return;
         }
-        throw new Exception("Bad Request");
+        throw new ServiceException(BAD_REQUEST.value(), "Cart not found!");
     }
 
 }

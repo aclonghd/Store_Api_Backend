@@ -5,8 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.java.store.JWTConfig;
-import com.java.store.dto.ResponseDto;
-import com.java.store.enums.Role;
+import com.java.store.dto.response.ResponseDto;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -67,12 +66,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         Map<String, String> tokens = new HashMap<>();
         tokens.put("access_token", access_token);
         tokens.put("refresh_token", refresh_token);
-        ResponseDto responseDto = new ResponseDto();
-        responseDto.setCode(HttpStatus.OK.value());
-        responseDto.setMessage(HttpStatus.OK.toString());
+
         List<Map<String, String>> res = new ArrayList<>();
         res.add(tokens);
-        responseDto.setResult(res);
+        ResponseDto responseDto = new ResponseDto(HttpStatus.OK.value(), HttpStatus.OK.toString(), res);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.writeValue(response.getOutputStream(), responseDto);
@@ -81,9 +78,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        ResponseDto responseDto = new ResponseDto();
-        responseDto.setCode(HttpStatus.OK.value());
-        responseDto.setMessage("User or password is incorrect!");
+        ResponseDto responseDto = new ResponseDto(HttpStatus.OK.value(), "User or password is incorrect!");
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.writeValue(response.getOutputStream(), responseDto);

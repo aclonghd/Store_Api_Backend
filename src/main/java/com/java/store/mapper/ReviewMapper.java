@@ -1,37 +1,42 @@
 package com.java.store.mapper;
 
-import com.java.store.dto.NewReviewDto;
-import com.java.store.dto.ReviewDto;
+import com.java.store.dto.request.NewReviewRequest;
+import com.java.store.dto.response.ReviewResponse;
 import com.java.store.module.Product;
 import com.java.store.module.Review;
 import com.java.store.module.Users;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
-public class ReviewMapper implements BaseMapper<ReviewDto, Review> {
+public class ReviewMapper implements BaseMapper<ReviewResponse, Review> {
     private final UserMapper userMapper;
     private final ProductMapper productMapper;
 
+    @Autowired
+    public ReviewMapper(UserMapper userMapper, ProductMapper productMapper) {
+        this.userMapper = userMapper;
+        this.productMapper = productMapper;
+    }
+
     @Override
-    public Review DtoToEntity(ReviewDto reviewDto) {
+    public Review DtoToEntity(ReviewResponse reviewResponse) {
         return null;
     }
 
     @Override
-    public ReviewDto EntityToDto(Review review) {
-        ReviewDto res = new ReviewDto();
+    public ReviewResponse EntityToDto(Review review) {
+        ReviewResponse res = new ReviewResponse();
         res.setId(review.getId());
         res.setReviewScore(review.getReviewScore());
         res.setReview(review.getReview());
         res.setUser(userMapper.EntityToDto(review.getUser()));
-        res.setProduct(productMapper.EntityToInfoDto(review.getProduct()));
+        res.setProduct(productMapper.EntityToDto(review.getProduct()));
         res.setTimeStamp(review.getTimeStamp());
         return res;
     }
 
-    public Review NewDtoToEntity(NewReviewDto reviewDto, Users user, Product product, Review reviewParent){
+    public Review NewDtoToEntity(NewReviewRequest reviewDto, Users user, Product product, Review reviewParent){
         Review res = new Review();
         res.setReview(reviewDto.getReview());
         res.setReviewScore(reviewDto.getReviewScore());

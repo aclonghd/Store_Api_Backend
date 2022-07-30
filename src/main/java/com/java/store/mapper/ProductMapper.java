@@ -1,16 +1,13 @@
 package com.java.store.mapper;
 
 import com.java.store.dto.ProductDto;
-import com.java.store.dto.ProductInfoDto;
 import com.java.store.module.Product;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Service
-@AllArgsConstructor
 public class ProductMapper implements BaseMapper<ProductDto, Product>{
     @Override
     public Product DtoToEntity(ProductDto productDto) {
@@ -21,14 +18,11 @@ public class ProductMapper implements BaseMapper<ProductDto, Product>{
         product.setInformation(productDto.getInformation());
         product.setQuantity(productDto.getQuantity());
         product.setImageUrl(productDto.getImageUrl());
-        if(!productDto.getMainImage().equals("null"))
-            product.setMainImage(productDto.getMainImage());
+        product.setMainImage(productDto.getMainImage());
         product.setVoteNumber(productDto.getVoteNumber());
-        product.setAverageRatting(productDto.getAverageRatting());
+        product.setTotalRatingScore(productDto.getTotalRatingScore());
         product.setTitleUrl(productDto.getTitleUrl());
-        if(!productDto.getProductTag().equals("") && !productDto.getProductTag().equals("null"))
-            product.setProductTag(productDto.getProductTag());
-        else product.setProductTag(null);
+        product.setProductTag(productDto.getProductTag());
         product.setSpecifications(productDto.getSpecifications());
         product.setMemory(productDto.getMemory());
         return product;
@@ -45,7 +39,7 @@ public class ProductMapper implements BaseMapper<ProductDto, Product>{
         productDto.setImageUrl(product.getImageUrl());
         productDto.setQuantity(product.getQuantity());
         productDto.setVoteNumber(product.getVoteNumber());
-        productDto.setAverageRatting(product.getAverageRatting());
+        productDto.setTotalRatingScore(product.getTotalRatingScore());
         productDto.setMainImage(product.getMainImage());
         productDto.setTitleUrl(product.getTitleUrl());
         productDto.setProductTag(product.getProductTag());
@@ -55,23 +49,5 @@ public class ProductMapper implements BaseMapper<ProductDto, Product>{
         product.getTags().forEach(tag -> tags.add(tag.getTitle()));
         productDto.setTags(tags);
         return productDto;
-    }
-
-    public ProductInfoDto EntityToInfoDto(Product product){
-        ProductInfoDto productInfoDto = new ProductInfoDto();
-        productInfoDto.setPrice(product.getPrice());
-        productInfoDto.setColor(product.getColor());
-        productInfoDto.setId(product.getId());
-        productInfoDto.setQuantity(product.getQuantity());
-        productInfoDto.setAverageRatting(product.getAverageRatting());
-        productInfoDto.setTitle(product.getTitle());
-        productInfoDto.setMainImage(product.getMainImage());
-        productInfoDto.setVoteNumber(product.getVoteNumber());
-        productInfoDto.setMemory(product.getMemory());
-        productInfoDto.setTitleUrl(product.getTitleUrl());
-        Set<String> tagSet = new HashSet<>();
-        product.getTags().forEach(tag -> tagSet.add(tag.getTitle()));
-        productInfoDto.setTags(tagSet);
-        return productInfoDto;
     }
 }

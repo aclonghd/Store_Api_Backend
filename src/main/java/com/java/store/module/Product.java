@@ -30,7 +30,7 @@ public class Product {
     )
     private Set<String> imageUrl;
     private String mainImage;
-    private float averageRatting;
+    private float totalRatingScore;
     private int voteNumber;
     private String titleUrl;
     private int memory;

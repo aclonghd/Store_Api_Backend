@@ -1,26 +1,26 @@
 package com.java.store.mapper;
 
-import com.java.store.dto.UserDto;
+import com.java.store.dto.response.UserResponse;
 import com.java.store.module.Users;
 
-public class UserMapper implements BaseMapper<UserDto, Users> {
+public class UserMapper implements BaseMapper<UserResponse, Users> {
     @Override
-    public Users DtoToEntity(UserDto userDto) {
+    public Users DtoToEntity(UserResponse userResponse) {
         Users res = new Users();
-        res.setUsername(userDto.getUsername());
-        res.setAge(userDto.getAge());
-        res.setEmail(userDto.getEmail());
-        res.setAddress(userDto.getAddress());
-        res.setFirstName(userDto.getFirstName());
-        res.setLastName(userDto.getLastName());
-        res.setRole(userDto.getRole());
-        res.setPhoneNumber(userDto.getPhoneNumber());
+        res.setUsername(userResponse.getUsername());
+        res.setAge(userResponse.getAge());
+        res.setEmail(userResponse.getEmail());
+        res.setAddress(userResponse.getAddress());
+        res.setFirstName(userResponse.getFirstName());
+        res.setLastName(userResponse.getLastName());
+        res.setRole(userResponse.getRole());
+        res.setPhoneNumber(userResponse.getPhoneNumber());
         return res;
     }
 
     @Override
-    public UserDto EntityToDto(Users user) {
-        UserDto res = new UserDto();
+    public UserResponse EntityToDto(Users user) {
+        UserResponse res = new UserResponse();
         res.setUsername(user.getUsername());
         res.setAge(user.getAge());
         res.setEmail(user.getEmail());

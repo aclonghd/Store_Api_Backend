@@ -1,11 +1,12 @@
 package com.java.store.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductDto {
     private Long id;
     private String title;
@@ -15,7 +16,7 @@ public class ProductDto {
     private int amount;
     private String color;
     private String mainImage;
-    private float averageRatting;
+    private float totalRatingScore;
     private int voteNumber;
     private String productTag;
     private String specifications;
@@ -23,5 +24,4 @@ public class ProductDto {
     private String titleUrl;
     private Set<String> imageUrl;
     private Set<String> tags;
-    private Set<MultipartFile> files;
 }

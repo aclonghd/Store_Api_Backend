@@ -16,7 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 @Configuration
@@ -38,18 +37,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(new AuthorizationCustomFilter(jwtConfig), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/", "/api/drive").permitAll()
-                .antMatchers(GET, "/product/api/**", "/review/api/**", "/cart/api/**").permitAll()
-                .antMatchers(POST, "/review/api/**", "/cart/api/**").permitAll()
+                .antMatchers(GET, "/products/api/**", "/review/api/**", "/cart/api/**").permitAll()
+                .antMatchers(POST, "/reviews/api/**", "/cart/api/**").permitAll()
                 .antMatchers(POST, "/users/api/register", "/users/api/login", "/users/store-manager/login").permitAll()
                 .antMatchers(GET,"/users/user-info").hasAnyAuthority(USER.name(), ADMIN.name())
                 .antMatchers(POST,"/users/user-info").hasAnyAuthority(USER.name(), ADMIN.name())
                 .antMatchers(GET,"/users/user-discount").hasAnyAuthority(USER.name(), ADMIN.name())
                 .antMatchers("/users/**").hasAuthority(ADMIN.name())
-                .antMatchers("/cart/**").hasAuthority(ADMIN.name())
-                .antMatchers("/product/**").hasAuthority(ADMIN.name())
-                .antMatchers("/discount/discount-info").hasAnyAuthority(USER.name(), ADMIN.name())
-                .antMatchers("/discount/**").hasAuthority(ADMIN.name())
-                .antMatchers("/review/**").hasAuthority(ADMIN.name())
+                .antMatchers("/carts/**").hasAuthority(ADMIN.name())
+                .antMatchers("/products/**").hasAuthority(ADMIN.name())
+                .antMatchers("/discounts/discount-info").hasAnyAuthority(USER.name(), ADMIN.name())
+                .antMatchers("/discounts/**").hasAuthority(ADMIN.name())
+                .antMatchers("/reviews/**").hasAuthority(ADMIN.name())
                 .anyRequest()
                 .authenticated()
                 .and().headers()
