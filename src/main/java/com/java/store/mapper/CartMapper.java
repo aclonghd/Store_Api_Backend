@@ -27,7 +27,6 @@ public class CartMapper implements BaseMapper<CartDto, Cart>{
         Cart res = new Cart();
         res.setAppointmentDate(cartDto.getAppointmentDate());
         res.setPaymentMethods(cartDto.getPaymentMethods());
-        res.setTimestamp(cartDto.getTimestamp());
         res.setStatus(cartDto.getStatus());
         return res;
     }
@@ -36,7 +35,7 @@ public class CartMapper implements BaseMapper<CartDto, Cart>{
     public CartDto EntityToDto(Cart cart) {
         CartDto res =new CartDto();
         res.setStatus(cart.getStatus());
-        res.setTimestamp(cart.getTimestamp());
+        res.setTimestamp(cart.getTimestamp().toString());
         res.setAppointmentDate(cart.getAppointmentDate());
         res.setPaymentMethods(cart.getPaymentMethods());
         res.setId(cart.getId());

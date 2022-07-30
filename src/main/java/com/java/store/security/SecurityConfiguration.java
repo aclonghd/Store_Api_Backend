@@ -28,27 +28,29 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final JWTConfig jwtConfig;
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManagerBean(), jwtConfig);
-        authenticationFilter.setFilterProcessesUrl("/users/api/login"); // path for normal user login
-        authenticationFilter.setFilterProcessesUrl("/users/store-manager/login"); // path for store manager login
+        AuthenticationFilter authenticationManagerFilter = new AuthenticationFilter(authenticationManagerBean(), jwtConfig, "manager");
+        AuthenticationFilter authenticationUserFilter = new AuthenticationFilter(authenticationManagerBean(), jwtConfig, "user");
+        authenticationUserFilter.setFilterProcessesUrl("/users/api/login"); // path for normal user login
+        authenticationManagerFilter.setFilterProcessesUrl("/users/store-manager/login"); // path for store manager login
         http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilter(authenticationFilter)
+                .addFilter(authenticationManagerFilter)
+                .addFilter(authenticationUserFilter)
                 .addFilterBefore(new AuthorizationCustomFilter(jwtConfig), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/", "/api/drive").permitAll()
-                .antMatchers(GET, "/products/api/**", "/review/api/**", "/cart/api/**").permitAll()
-                .antMatchers(POST, "/reviews/api/**", "/cart/api/**").permitAll()
+                .antMatchers(GET, "/products/api/**", "/review/api/**", "/carts/api/**").permitAll()
+                .antMatchers(POST, "/reviews/api/**", "/carts/api/**").permitAll()
                 .antMatchers(POST, "/users/api/register", "/users/api/login", "/users/store-manager/login").permitAll()
-                .antMatchers(GET,"/users/user-info").hasAnyAuthority(USER.name(), ADMIN.name())
-                .antMatchers(POST,"/users/user-info").hasAnyAuthority(USER.name(), ADMIN.name())
-                .antMatchers(GET,"/users/user-discount").hasAnyAuthority(USER.name(), ADMIN.name())
-                .antMatchers("/users/**").hasAuthority(ADMIN.name())
-                .antMatchers("/carts/**").hasAuthority(ADMIN.name())
-                .antMatchers("/products/**").hasAuthority(ADMIN.name())
-                .antMatchers("/discounts/discount-info").hasAnyAuthority(USER.name(), ADMIN.name())
-                .antMatchers("/discounts/**").hasAuthority(ADMIN.name())
-                .antMatchers("/reviews/**").hasAuthority(ADMIN.name())
+                .antMatchers(GET,"/users/user-info").hasAnyRole(USER.name(), ADMIN.name())
+                .antMatchers(POST,"/users/user-info").hasAnyRole(USER.name(), ADMIN.name())
+                .antMatchers(GET,"/users/user-discount").hasAnyRole(USER.name(), ADMIN.name())
+                .antMatchers("/users/**").hasRole(ADMIN.name())
+                .antMatchers("/carts/**").hasRole(ADMIN.name())
+                .antMatchers("/products/**").hasRole(ADMIN.name())
+                .antMatchers("/discounts/discount-info").hasAnyRole(USER.name(), ADMIN.name())
+                .antMatchers("/discounts/**").hasRole(ADMIN.name())
+                .antMatchers("/reviews/**").hasRole(ADMIN.name())
                 .anyRequest()
                 .authenticated()
                 .and().headers()

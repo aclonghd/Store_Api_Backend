@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.java.store.JWTConfig;
 import com.java.store.dto.response.ResponseDto;
+import com.java.store.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -44,8 +45,7 @@ public class AuthorizationCustomFilter extends OncePerRequestFilter {
                     if(uri != null){
                         if(!uri.equals(request.getPathInfo())) throw new Exception("URI Request is forbidden");
                     }
-                    Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                    authorities.add(new SimpleGrantedAuthority(role));
+                    Collection<SimpleGrantedAuthority> authorities = Role.valueOf(role).getGrantedAuthorities();
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     filterChain.doFilter(request, response);

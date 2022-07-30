@@ -1,6 +1,7 @@
 package com.java.store.mapper;
 
 import com.java.store.dto.response.UserResponse;
+import com.java.store.enums.Role;
 import com.java.store.module.Users;
 
 public class UserMapper implements BaseMapper<UserResponse, Users> {
@@ -13,7 +14,7 @@ public class UserMapper implements BaseMapper<UserResponse, Users> {
         res.setAddress(userResponse.getAddress());
         res.setFirstName(userResponse.getFirstName());
         res.setLastName(userResponse.getLastName());
-        res.setRole(userResponse.getRole());
+        res.setRole(Role.USER.toString());
         res.setPhoneNumber(userResponse.getPhoneNumber());
         return res;
     }

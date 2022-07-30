@@ -1,12 +1,13 @@
 package com.java.store.module;
 
+import static com.java.store.enums.Role.*;
+
 import com.java.store.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -39,12 +40,9 @@ public class Users {
     private Set<Discount> discounts;
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        switch (role){
-            case "ADMIN":
-                return Role.ADMIN.getGrantedAuthorities();
-            case "USER":
-                return Role.USER.getGrantedAuthorities();
+        if (valueOf(role) == ADMIN) {
+            return ADMIN.getGrantedAuthorities();
         }
-        return null;
+        return USER.getGrantedAuthorities();
     }
 }

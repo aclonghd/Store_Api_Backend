@@ -20,6 +20,7 @@ import static org.springframework.http.HttpStatus.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -44,7 +45,7 @@ public class CartService {
     }
 
     public CartDto getCartByPhoneNumberAndId(String phoneNumber, String id) {
-        return cartMapper.EntityToDto(cartRepo.getByPhoneNumberAndId(phoneNumber, id));
+        return cartMapper.EntityToDto(cartRepo.getByPhoneNumberAndId(phoneNumber, id).orElseThrow(() -> new ServiceException(OK.value(), "Cart not found")));
     }
 
     public List<CartDto> getAllCart(){
@@ -92,6 +93,7 @@ public class CartService {
         cart.setUser(user);
         cart.setProducts(products);
         cart.setStatus("Đang chờ xử lý");
+        cart.setTimestamp(Timestamp.valueOf(LocalDateTime.now()));
         cartRepo.save(cart);
         cartRepo.flush();
         return cart.getId();

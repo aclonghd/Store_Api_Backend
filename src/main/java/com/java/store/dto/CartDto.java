@@ -24,8 +24,7 @@ public class CartDto {
     private String appointmentDate;
     @NotNull
     private String paymentMethods;
-    @NotNull
-    private Timestamp timestamp;
+    private String timestamp;
     private String status;
 
     public CartDto(Set<ProductDto> products, UserResponse userResponse){

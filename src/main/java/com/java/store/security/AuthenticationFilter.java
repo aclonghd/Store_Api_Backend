@@ -28,14 +28,15 @@ import java.util.*;
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JWTConfig jwtConfig;
+    private final String type;
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             AuthenticationRequest user = objectMapper.readValue(request.getInputStream(), AuthenticationRequest.class);
             Authentication result = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-            if(request.getServletPath().equals("/users/store-manager/login")){
-                if(result.getAuthorities().size() != 12){
+            if(type.equals("manager")){
+                if(result.getAuthorities().size() != 21){
                     return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), null));
                 }
             }
@@ -50,7 +51,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         User user = (User) authResult.getPrincipal();
         int size = user.getAuthorities().size();
         String role = "USER";
-        if(size == 12) role = "ADMIN";
+        if(size == 21) role = "ADMIN";
         String access_token = JWT.create()
                 .withSubject(user.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
